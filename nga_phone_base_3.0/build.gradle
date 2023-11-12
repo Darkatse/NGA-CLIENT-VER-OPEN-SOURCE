@@ -33,7 +33,7 @@ android {
         applicationId "gov.anzong.androidnga"
         minSdkVersion project.minSdkVersion
         targetSdkVersion project.targetSdkVersion
-        resConfigs "zh", "en"
+        resConfigs 'zh', 'en'
 
         versionCode project.appVersionCode
         versionName project.appVersionName
@@ -69,11 +69,12 @@ android {
             minifyEnabled false
         }
     }
-
-    lintOptions {
+    lint {
         abortOnError false
         disable 'MissingTranslation'
     }
+    namespace 'gov.anzong.androidnga'
+
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {

@@ -1,5 +1,7 @@
 package sp.phone.view.behavior;
 
+import static gov.anzong.androidnga.base.util.ContextUtils.getResources;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -22,9 +24,15 @@ public class ScrollAwareFamBehavior extends com.getbase.floatingactionbutton.Scr
     private boolean mIsAnimationIn = false;
     private boolean mIsShown = true;
     private static final int SCROLL_AXIS_VERTICAL = 10;
+    private int mNavigationBarHeight = 0;
 
     public ScrollAwareFamBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
+        // 获取导航栏的高度
+        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            mNavigationBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+        }
     }
 
     public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionsMenu child, View directTargetChild, View target, int nestedScrollAxes) {
@@ -42,7 +50,10 @@ public class ScrollAwareFamBehavior extends com.getbase.floatingactionbutton.Scr
     }
 
     public void animateOut(FloatingActionsMenu button) {
-        int height = button.getAddFloatingActionButton().getHeight() + button.getAddButtonMarginBottom();
+        // 计算动画距离
+        int height = button.getAddFloatingActionButton().getHeight() + button.getAddButtonMarginBottom() + mNavigationBarHeight;
+
+        // 创建并启动动画
         ViewCompat.animate(button).translationY((float) height).setInterpolator(INTERPOLATOR).setListener(new ViewPropertyAnimatorListener() {
             public void onAnimationStart(View view) {
                 mIsAnimatingOut = true;
