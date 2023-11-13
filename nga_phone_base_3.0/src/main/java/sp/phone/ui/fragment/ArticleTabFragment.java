@@ -1,5 +1,7 @@
 package sp.phone.ui.fragment;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -74,6 +76,8 @@ public class ArticleTabFragment extends BaseRxFragment {
 
     private ScrollAwareFamBehavior mBehavior;
 
+    private int navigationBarHeight;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +95,28 @@ public class ArticleTabFragment extends BaseRxFragment {
                 mTabLayout.setTabOnScreenLimit(count <= 5 ? count : 0);
                 mTabLayout.notifyDataSetChanged();
             }
+
+            // 如果页面数量为小于2，将mTabLayout设置为不可见
+            if (count < 2) {
+                mTabLayout.animate()
+                    .translationY(-mTabLayout.getHeight())
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mTabLayout.setVisibility(View.GONE);
+                        }
+                    });
+            } else {
+                mTabLayout.setVisibility(View.VISIBLE);
+            }
         });
+
+        // 获取NavigationBar的高度
+        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            navigationBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
     }
 
     @Nullable
@@ -137,6 +162,12 @@ public class ArticleTabFragment extends BaseRxFragment {
             mFam.setExpandDirection(FloatingActionsMenu.EXPAND_UP, FloatingActionsMenu.LABELS_ON_RIGHT_SIDE);
             mFam.setLayoutParams(lp);
         }
+
+        // 获取FloatingActionsMenu当前的Y轴位置
+        float currentY = mFam.getTranslationY();
+
+        // 设置FloatingActionsMenu的位置
+        mFam.setTranslationY(currentY - navigationBarHeight);
     }
 
     @Override

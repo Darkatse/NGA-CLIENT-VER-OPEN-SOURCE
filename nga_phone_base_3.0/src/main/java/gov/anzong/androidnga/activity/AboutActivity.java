@@ -3,8 +3,10 @@ package gov.anzong.androidnga.activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +28,22 @@ public class AboutActivity extends MaterialAboutActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         ThemeManager.getInstance().applyAboutTheme(this);
-        super.onCreate(savedInstanceState);
+
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+
+        super.onCreate(savedInstanceState);        
+
+        // 获取状态栏的高度
+        int statusBarHeight = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+
+        // 给根视图添加一个顶部的padding
+        View rootView = findViewById(android.R.id.content);
+        rootView.setPadding(0, statusBarHeight, 0, 0);
     }
 
     @NonNull

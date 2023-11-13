@@ -47,6 +47,8 @@ public class TopicListFragment extends TopicSearchFragment {
     @BindView(R.id.toolbar)
     public Toolbar mToolbar;
 
+    private int navigationBarHeight;
+
     @Override
     protected void setTitle() {
         if (mRequestParam.title != null) {
@@ -72,6 +74,13 @@ public class TopicListFragment extends TopicSearchFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // 获取NavigationBar的高度
+        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            navigationBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+
         updateFloatingMenu();
     }
 
@@ -82,6 +91,12 @@ public class TopicListFragment extends TopicSearchFragment {
             mFam.setExpandDirection(FloatingActionsMenu.EXPAND_UP, FloatingActionsMenu.LABELS_ON_RIGHT_SIDE);
             mFam.setLayoutParams(lp);
         }
+
+        // 获取FloatingActionsMenu当前的Y轴位置
+        float currentY = mFam.getTranslationY();
+
+        // 设置FloatingActionsMenu的位置
+        mFam.setTranslationY(currentY - navigationBarHeight);
     }
 
     @Override

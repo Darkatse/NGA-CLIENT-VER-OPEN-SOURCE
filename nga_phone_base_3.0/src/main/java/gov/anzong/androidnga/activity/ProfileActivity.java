@@ -171,9 +171,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
         setContentView(R.layout.activity_user_profile);
         ButterKnife.bind(this);
-        setupActionBar();
-        updateToolbarLayout();
-        setupStatusBar();
+
+        // 注释掉之前的全面屏适配代码，以免冲突
+        // setupActionBar();
+        // updateToolbarLayout();
+        // setupStatusBar();
         refresh();
     }
 

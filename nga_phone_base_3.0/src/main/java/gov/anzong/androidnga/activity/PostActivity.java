@@ -6,6 +6,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.TypedValue;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.justwen.androidnga.cloud.CloudServerManager;
@@ -27,6 +28,12 @@ public class PostActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         setupToolbar();
+
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+        int color = typedValue.data;
+        getWindow().setNavigationBarColor(color);
+
         PostParam act = getPostParam();
         if (act.getPostAction() == null) {
             finish();

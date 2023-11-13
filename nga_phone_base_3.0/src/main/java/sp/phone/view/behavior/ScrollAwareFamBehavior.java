@@ -75,7 +75,7 @@ public class ScrollAwareFamBehavior extends com.getbase.floatingactionbutton.Scr
             return;
         }
         button.setVisibility(View.VISIBLE);
-        ViewCompat.animate(button).translationY(0.0F).setInterpolator(INTERPOLATOR).setListener(new ViewPropertyAnimatorListener() {
+        ViewCompat.animate(button).translationY(-mNavigationBarHeight).setInterpolator(INTERPOLATOR).setListener(new ViewPropertyAnimatorListener() {
             public void onAnimationStart(View view) {
                 mIsAnimationIn = true;
             }
