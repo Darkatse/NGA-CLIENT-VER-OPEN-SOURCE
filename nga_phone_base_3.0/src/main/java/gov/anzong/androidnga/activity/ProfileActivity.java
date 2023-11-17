@@ -173,9 +173,9 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
         ButterKnife.bind(this);
 
         // 注释掉之前的全面屏适配代码，以免冲突
-        // setupActionBar();
-        // updateToolbarLayout();
-        // setupStatusBar();
+        setupActionBar();
+//        updateToolbarLayout();
+//        setupStatusBar();
         refresh();
     }
 
@@ -427,6 +427,7 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 321 && resultCode == Activity.RESULT_OK) {
             String signData = data.getStringExtra("sign");
             if (mProfileData != null) {
