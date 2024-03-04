@@ -39,7 +39,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
-        setSwipeBackEnable(false);
         super.onCreate(savedInstanceState);
         ThemeUtils.init(this);
         checkPermission();
@@ -54,11 +53,6 @@ public class MainActivity extends BaseActivity {
         if (!isTaskRoot()) {
             finish();
         }
-    }
-
-    @Override
-    protected void onCreateAfterSuper(@Nullable Bundle savedInstanceState) {
-        setSwipeBackEnable(false);
     }
 
     private void checkPermission() {

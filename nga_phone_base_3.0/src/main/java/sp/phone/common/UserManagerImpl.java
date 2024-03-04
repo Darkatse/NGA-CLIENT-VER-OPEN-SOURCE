@@ -174,6 +174,9 @@ public class UserManagerImpl implements UserManager {
     }
 
     private int getNextActiveIndex(boolean isNext) {
+        if (mUserList.isEmpty()) {
+            return -1;
+        }
         int index = isNext ? mActiveIndex + 1 : mActiveIndex + mUserList.size() - 1;
         return index % mUserList.size();
     }
@@ -237,6 +240,9 @@ public class UserManagerImpl implements UserManager {
     @Override
     public String getNextCookie() {
         int nextIndex = getNextActiveIndex(true);
+        if (nextIndex == -1) {
+            return null;
+        }
         return nextIndex != mActiveIndex ? getCookie(mUserList.get(nextIndex)) : null;
     }
 

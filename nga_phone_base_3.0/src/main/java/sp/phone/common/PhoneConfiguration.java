@@ -40,8 +40,6 @@ public class PhoneConfiguration extends PreferenceKey implements SharedPreferenc
 
     private boolean mShowBottomTab;
 
-    private boolean mHardwareAcceleratedEnabled;
-
     private boolean mFilterSubBoard;
 
     private boolean mSortByPostOrder;
@@ -76,9 +74,6 @@ public class PhoneConfiguration extends PreferenceKey implements SharedPreferenc
                 break;
             case PreferenceKey.BOTTOM_TAB:
                 mShowBottomTab = sp.getBoolean(key, false);
-                break;
-            case PreferenceKey.HARDWARE_ACCELERATED:
-                mHardwareAcceleratedEnabled = sp.getBoolean(key, true);
                 break;
             case PreferenceKey.FILTER_SUB_BOARD:
                 mFilterSubBoard = sp.getBoolean(key, false);
@@ -123,7 +118,6 @@ public class PhoneConfiguration extends PreferenceKey implements SharedPreferenc
         mShowClassicIcon = sp.getBoolean(PreferenceKey.SHOW_ICON_MODE, false);
         mLeftHandMode = sp.getBoolean(PreferenceKey.LEFT_HAND, false);
         mShowBottomTab = sp.getBoolean(PreferenceKey.BOTTOM_TAB, false);
-        mHardwareAcceleratedEnabled = sp.getBoolean(PreferenceKey.HARDWARE_ACCELERATED, true);
         mFilterSubBoard = sp.getBoolean(PreferenceKey.FILTER_SUB_BOARD, false);
         mSortByPostOrder = sp.getBoolean(PreferenceKey.SORT_BY_POST, false);
 
@@ -141,10 +135,6 @@ public class PhoneConfiguration extends PreferenceKey implements SharedPreferenc
 
     public boolean needFilterSubBoard() {
         return mFilterSubBoard;
-    }
-
-    public boolean isHardwareAcceleratedEnabled() {
-        return mHardwareAcceleratedEnabled;
     }
 
     public boolean isLeftHandMode() {

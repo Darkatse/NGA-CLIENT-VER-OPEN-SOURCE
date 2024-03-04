@@ -20,7 +20,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.justwen.androidnga.cloud.CloudServerManager;
 
 import gov.anzong.androidnga.R;
-import gov.anzong.androidnga.base.common.SwipeBackHelper;
 import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
 import sp.phone.common.NotificationController;
@@ -36,24 +35,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private boolean mToolbarEnabled;
 
-    private boolean mHardwareAcceleratedEnabled = true;
-
-    private SwipeBackHelper mSwipeBackHelper;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mConfig = PhoneConfiguration.getInstance();
-        updateWindowFlag();
         updateThemeUi();
-        setSwipeBackEnable(PreferenceUtils.getData(PreferenceKey.KEY_SWIPE_BACK, false));
-        onCreateBeforeSuper(savedInstanceState);
         super.onCreate(savedInstanceState);
-        onCreateAfterSuper(savedInstanceState);
         ThemeManager.getInstance().initializeWebTheme(this);
 
-        if (mSwipeBackHelper != null) {
-            mSwipeBackHelper.onCreate(this);
-        }
 
         /********************设置开始*****************************/
         Window window = getWindow();
@@ -102,45 +90,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         // }
     }
 
-    protected void setSwipeBackEnable(boolean enable) {
-        if (!enable) {
-            mSwipeBackHelper = null;
-        } else if (mSwipeBackHelper == null) {
-            mSwipeBackHelper = new SwipeBackHelper();
-        }
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (mSwipeBackHelper != null) {
-            mSwipeBackHelper.onPostCreate();
-        }
-    }
-
-    @Override
-    public <T extends View> T findViewById(int id) {
-        T t = super.findViewById(id);
-        if (t == null && mSwipeBackHelper != null) {
-            t = mSwipeBackHelper.findViewById(id);
-        }
-        return t;
-    }
-
-    protected void onCreateBeforeSuper(@Nullable Bundle savedInstanceState) {
-
-    }
-
-    protected void onCreateAfterSuper(@Nullable Bundle savedInstanceState) {
-
-    }
-
     protected void setToolbarEnabled(boolean enabled) {
         mToolbarEnabled = enabled;
-    }
-
-    protected void setHardwareAcceleratedEnabled(boolean enabled) {
-        mHardwareAcceleratedEnabled = enabled;
     }
 
     public void setupToolbar(Toolbar toolbar) {
@@ -173,15 +124,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void updateThemeUi() {
         ThemeManager tm = ThemeManager.getInstance();
         setTheme(tm.getTheme(mToolbarEnabled));
-    }
-
-    protected void updateWindowFlag() {
-        int flag = 0;
-
-        if (mHardwareAcceleratedEnabled) {
-            flag = flag | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
-        }
-        getWindow().addFlags(flag);
     }
 
     @Deprecated

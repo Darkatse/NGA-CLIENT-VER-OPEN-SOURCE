@@ -1,6 +1,5 @@
 package gov.anzong.androidnga.gallery;
 
-import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.justwen.androidnga.cloud.CloudServerManager;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.util.Arrays;
@@ -119,18 +117,10 @@ public class ImageZoomActivity extends BaseActivity {
     }
 
     private void saveBitmap(OnSimpleHttpCallBack<SaveImageTask.DownloadResult> callBack, String... urls) {
-        new RxPermissions(this)
-                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .subscribe(granted -> {
-                    if (granted) { // Always true pre-M
-                        if (mSaveImageTask == null) {
-                            mSaveImageTask = new SaveImageTask();
-                        }
-                        mSaveImageTask.execute(callBack, urls);
-                    } else {
-                        // Oups permission denied
-                    }
-                });
+        if (mSaveImageTask == null) {
+            mSaveImageTask = new SaveImageTask();
+        }
+        mSaveImageTask.execute(callBack, urls);
     }
 
     private void saveBitmap(String... urls) {

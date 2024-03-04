@@ -40,8 +40,6 @@ public class PreferenceKey {
 
     public static final String LEFT_HAND = "left_hand";
 
-    public static final String HARDWARE_ACCELERATED = "hardware_accelerated";
-
     public static final String BOOKMARK_BOARD = "bookmark_board";
 
     public static final String CHECK_IN_LAST_TIME = "check_in_last_time";
@@ -59,8 +57,6 @@ public class PreferenceKey {
     public static final String KEY_TOPIC_HISTORY = "topic_history";
 
     public static final String KEY_REPLY_COUNT = "reply_count";
-
-    public static final String KEY_SWIPE_BACK = "swipe_back";
 
     public static final String KEY_NGA_DOMAIN = "nga_domain";
 

@@ -116,12 +116,11 @@ public class SettingsFragment extends BasePreferenceFragment implements Preferen
     private void setFullScreen(boolean fullScreen) {
         int flag;
         if (fullScreen) {
-            flag = WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else {
             getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            flag = WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
         }
-        getActivity().getWindow().addFlags(flag);
+
     }
 
     @Override

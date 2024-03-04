@@ -16,9 +16,9 @@
     <application
         android:name=".NgaClientApp"
         android:anyDensity="false"
-        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/label_activity_main"
+        android:hardwareAccelerated="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
