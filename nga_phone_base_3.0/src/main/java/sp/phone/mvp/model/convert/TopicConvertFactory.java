@@ -3,6 +3,7 @@ package sp.phone.mvp.model.convert;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -219,9 +220,14 @@ public class TopicConvertFactory {
                 pageInfo.setReplyInfo(replyInfo);
             }
 
-            Map<String, String> parent = tBean.getParent();
-            if (parent != null) {
-                pageInfo.setBoard(parent.get("2"));
+            String parent = tBean.parent;
+            if (!TextUtils.isEmpty(parent)) {
+                try {
+                    JSONObject obj = JSON.parseObject(parent);
+                    pageInfo.setBoard(Objects.requireNonNull(obj.get("2")).toString());
+                } catch (Exception e) {
+                    // ignore
+                }
             }
 
             pageInfo.setPostDate(tBean.getPostdate());

@@ -257,7 +257,7 @@ public class TopicListBean {
              * 0 : 275
              * 2 : 测试版面
              */
-            private Map<String, String> parent;
+            public String parent;
 
             public Map<String, String> topic_misc_var;
 
@@ -403,14 +403,6 @@ public class TopicListBean {
 
             public void setTpcurl(String tpcurl) {
                 this.tpcurl = tpcurl;
-            }
-
-            public Map<String, String> getParent() {
-                return parent;
-            }
-
-            public void setParent(Map<String, String> parent) {
-                this.parent = parent;
             }
 
             public PBean get__P() {
