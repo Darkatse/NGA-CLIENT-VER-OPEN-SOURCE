@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
 import com.alibaba.android.arouter.facade.Postcard;
@@ -19,6 +18,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.PermissionUtils;
 import gov.anzong.androidnga.base.util.ThemeUtils;
+import com.justwen.androidnga.module.message.compose.MessageListActivity;
 import sp.phone.common.User;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.param.ParamKey;

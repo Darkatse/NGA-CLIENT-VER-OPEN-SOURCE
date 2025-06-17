@@ -22,6 +22,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.common.util.EmoticonUtils;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.http.bean.StringFindResult;
 import sp.phone.theme.ThemeManager;
 

@@ -3,9 +3,10 @@ package sp.phone.http.bean;
 import java.util.List;
 import java.util.Map;
 
+import gov.anzong.androidnga.common.base.JavaBean;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 
-public class ThreadData {
+public class ThreadData implements JavaBean {
     private List<ThreadRowInfo> rowList;
     private ThreadPageInfo threadInfo;
     private Map<String, String> __F;

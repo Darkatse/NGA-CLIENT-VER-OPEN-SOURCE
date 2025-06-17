@@ -79,7 +79,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         String avatarUrl = user.getAvatarUrl();
         GlideApp.with(mContext)
                 .load(avatarUrl)
-                .placeholder(R.drawable.default_avatar)
+                .placeholder(com.justwen.androidnga.module.message.R.drawable.default_avatar)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(holder.avatarView);
     }

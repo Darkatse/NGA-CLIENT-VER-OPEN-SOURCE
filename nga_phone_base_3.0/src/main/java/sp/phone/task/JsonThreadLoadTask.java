@@ -12,7 +12,7 @@ import sp.phone.http.bean.ThreadData;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.ArticleUtil;
 import sp.phone.util.HttpUtil;
-import sp.phone.util.NLog;
+import gov.anzong.androidnga.common.util.NLog;
 
 public class JsonThreadLoadTask extends AsyncTask<String, Integer, ThreadData> {
 

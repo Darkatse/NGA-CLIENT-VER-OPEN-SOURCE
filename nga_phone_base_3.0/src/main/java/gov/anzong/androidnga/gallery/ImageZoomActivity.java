@@ -1,9 +1,7 @@
 package gov.anzong.androidnga.gallery;
 
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.justwen.androidnga.cloud.CloudServerManager;
@@ -21,11 +18,9 @@ import com.justwen.androidnga.cloud.CloudServerManager;
 import java.io.File;
 import java.util.Arrays;
 
-import gov.anzong.androidnga.BuildConfig;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
-import gov.anzong.androidnga.base.util.DeviceUtils;
-import gov.anzong.androidnga.base.util.ToastUtils;
+import gov.anzong.androidnga.base.util.ShareUtils;
 import sp.phone.http.OnSimpleHttpCallBack;
 
 /**
@@ -141,26 +136,7 @@ public class ImageZoomActivity extends BaseActivity {
     }
 
     private void share(File file) {
-        try {
-            if (DeviceUtils.isGreaterEqual_7_0()) {
-                Uri contentUri = FileProvider.getUriForFile(this,
-                        BuildConfig.APPLICATION_ID, file);
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_STREAM, contentUri);
-                intent.setType("image/jpeg");
-                String text = getResources().getString(R.string.share);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(intent, text));
-            } else {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-                intent.setType("image/jpeg");
-                String text = getResources().getString(R.string.share);
-                startActivity(Intent.createChooser(intent, text));
-            }
-        } catch (ActivityNotFoundException e) {
-            ToastUtils.error("分享失败");
-        }
+        ShareUtils.INSTANCE.shareImage(this, file);
     }
 
     @Override

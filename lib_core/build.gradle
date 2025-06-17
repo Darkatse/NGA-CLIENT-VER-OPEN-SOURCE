@@ -3,7 +3,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion project.compileSdkVersion
+    namespace 'gov.anzong.androidnga.core'
+    compileSdk project.compileSdkVersion
 
     defaultConfig {
         minSdkVersion project.minSdkVersion
@@ -19,8 +20,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     namespace 'gov.anzong.androidnga.core'
 }
@@ -29,5 +30,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
 
-    compileOnly project(':lib_common')
+    implementation "androidx.annotation:annotation:1.1.0"
+    compileOnly project(':lib_base_common')
+
 }

@@ -33,6 +33,7 @@ import butterknife.OnClick;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.activity.WebViewActivity;
+import gov.anzong.androidnga.base.util.ShareUtils;
 import gov.anzong.androidnga.base.widget.TabLayoutEx;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
@@ -46,7 +47,6 @@ import sp.phone.theme.ThemeManager;
 import sp.phone.ui.adapter.ArticlePagerAdapter;
 import sp.phone.ui.fragment.dialog.GotoDialogFragment;
 import sp.phone.util.ActivityUtils;
-import sp.phone.util.FunctionUtils;
 import sp.phone.util.StringUtils;
 import sp.phone.view.behavior.ScrollAwareFamBehavior;
 
@@ -276,7 +276,7 @@ public class ArticleTabFragment extends BaseRxFragment {
         } else {
             builder.append("tid=").append(mRequestParam.tid).append(" (分享自NGA安卓客户端开源版)");
         }
-        FunctionUtils.share(getContext(), title, builder.toString());
+        ShareUtils.INSTANCE.shareText(getContext(), title, builder.toString());
     }
 
     @Override

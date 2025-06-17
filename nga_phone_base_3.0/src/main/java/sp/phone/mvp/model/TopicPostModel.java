@@ -36,15 +36,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import sp.phone.http.bean.TopicPostBean;
-import sp.phone.http.retrofit.RetrofitHelper;
-import sp.phone.http.retrofit.RetrofitService;
+import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
+import com.justwen.androidnga.base.network.retrofit.RetrofitService;
 import sp.phone.mvp.contract.TopicPostContract;
 import sp.phone.param.ParamKey;
 import sp.phone.param.PostParam;
 import sp.phone.rxjava.BaseSubscriber;
 import sp.phone.task.TopicPostTask;
 import sp.phone.util.ImageUtils;
-import sp.phone.util.NLog;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
 
 ;

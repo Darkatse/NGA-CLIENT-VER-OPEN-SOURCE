@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import gov.anzong.androidnga.activity.ArticleListActivity;
 import gov.anzong.androidnga.activity.LoginActivity;
-import gov.anzong.androidnga.activity.MessageDetailActivity;
 import gov.anzong.androidnga.activity.PostActivity;
 import gov.anzong.androidnga.activity.ProfileActivity;
 import gov.anzong.androidnga.activity.SignPostActivity;
@@ -22,7 +21,6 @@ public class PhoneConfiguration extends PreferenceKey implements SharedPreferenc
     public Class<?> signPostActivityClass = SignPostActivity.class;
     public Class<?> profileActivityClass = ProfileActivity.class;
     public Class<?> loginActivityClass = LoginActivity.class;
-    public Class<?> messageDetialActivity = MessageDetailActivity.class;
 
     private boolean mNotificationEnabled;
 

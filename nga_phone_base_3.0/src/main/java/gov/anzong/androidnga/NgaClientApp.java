@@ -5,6 +5,7 @@ import android.os.Process;
 import android.webkit.WebView;
 
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwen.androidnga.cloud.CloudServerManager;
 
 import org.apache.commons.io.FileUtils;
@@ -18,6 +19,7 @@ import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.base.util.ThreadUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
+import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.common.util.ReflectUtils;
 import gov.anzong.androidnga.db.AppDatabase;
 import sp.phone.common.FilterKeywordsManagerImpl;
@@ -33,8 +35,8 @@ public class NgaClientApp extends Application {
 
     @Override
     public void onCreate() {
-        initLogger();
         ContextUtils.setApplication(this);
+        initLogger();
         PreferenceUtils.transfer(this);
         checkNewVersion();
         VersionUpgradeHelper.upgrade();
@@ -50,7 +52,9 @@ public class NgaClientApp extends Application {
     }
 
     private void initLogger() {
-        Logger.getInstance().d(TAG, "app nga android start");
+        Logger.setBuildDebugMode(BuildConfig.DEBUG);
+        Logger.d(TAG, "app nga android start");
+        NLog.setDebug(BuildConfig.DEBUG);
     }
 
     private void fixWebViewMultiProcessException() {
@@ -97,6 +101,7 @@ public class NgaClientApp extends Application {
     private void initCoreModule() {
         UserManagerImpl.getInstance().initialize(this);
         FilterKeywordsManagerImpl.getInstance().initialize(this);
+        RetrofitHelper.setCookieProvider(() -> UserManagerImpl.getInstance().getCookie());
 //        // 注册crashHandler
 //        CrashHandler.getInstance().init(this);
 

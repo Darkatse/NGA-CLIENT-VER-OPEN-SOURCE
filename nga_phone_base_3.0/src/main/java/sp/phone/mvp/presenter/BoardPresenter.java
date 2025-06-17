@@ -24,7 +24,7 @@ import sp.phone.ui.fragment.NavigationDrawerFragment;
 import sp.phone.util.ARouterUtils;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.HttpUtil;
-import sp.phone.util.NLog;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
 
 /**

@@ -23,7 +23,7 @@
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@android:style/Theme.Holo.Light"
+        android:theme="@style/AppThemeDayNight"
         tools:ignore="AllowBackup"
         tools:replace="android:label">
         <meta-data android:name="EasyGoClient" android:value="true" />
@@ -45,6 +45,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize"
@@ -70,12 +71,6 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/menu_setting"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".activity.MessageListActivity"
-            android:label="@string/label_activity_message_list" />
-        <activity
-            android:name=".activity.MessageDetailActivity"
-            android:label="@string/label_activity_message_detail" />
 
         <activity
             android:name=".activity.TopicListActivity"
@@ -184,9 +179,11 @@
         <activity android:name=".activity.WebViewerActivity" />
         <activity android:name=".activity.RecentNotificationActivity" />
         <activity android:name=".activity.LauncherSubActivity" />
+
         <activity
-            android:name=".activity.SearchActivity"
+            android:name=".activity.compose.SearchActivity"
             android:label="@string/search" />
+
         <activity
             android:name=".activity.AboutActivity"
             android:label="@string/title_about" />

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentUris;
@@ -34,17 +33,18 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.justwen.androidnga.core.data.MessageArticlePageInfo;
+
 import java.util.Objects;
 
 import gov.anzong.androidnga.BuildConfig;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
-import gov.anzong.androidnga.base.util.ToastUtils;
+import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.MessageArticlePageInfo;
 import sp.phone.http.bean.ThreadRowInfo;
 import sp.phone.proxy.ProxyBridge;
 import sp.phone.theme.ThemeManager;
@@ -914,15 +914,4 @@ public class FunctionUtils {
         }
     }
 
-    public static void share(Context context, String title, String content) {
-        try {
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, content);
-            context.startActivity(Intent.createChooser(intent, title));
-        } catch (ActivityNotFoundException e) {
-            ToastUtils.error("分享失败！");
-        }
-    }
 }

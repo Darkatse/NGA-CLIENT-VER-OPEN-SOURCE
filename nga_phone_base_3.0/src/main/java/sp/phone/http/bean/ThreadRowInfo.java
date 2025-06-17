@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import gov.anzong.androidnga.common.base.JavaBean;
+
 /**
  * 每一行的内容
  */
-public class ThreadRowInfo {
+public class ThreadRowInfo implements JavaBean {
 
     private int tid;
     private int fid;

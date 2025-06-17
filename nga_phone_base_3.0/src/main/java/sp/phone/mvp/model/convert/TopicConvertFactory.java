@@ -21,8 +21,8 @@ import sp.phone.http.bean.TopicListBean;
 import sp.phone.mvp.model.entity.SubBoard;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
-import sp.phone.util.ForumUtils;
-import sp.phone.util.NLog;
+import gov.anzong.androidnga.common.util.ForumUtils;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
 
 /**

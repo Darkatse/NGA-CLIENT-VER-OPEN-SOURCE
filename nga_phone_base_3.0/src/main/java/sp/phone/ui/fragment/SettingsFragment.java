@@ -3,14 +3,11 @@ package sp.phone.ui.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
-import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceGroup;
 
 import com.bumptech.glide.Glide;
 
@@ -28,10 +25,8 @@ import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.ui.fragment.BasePreferenceFragment;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.retrofit.RetrofitHelper;
 import sp.phone.theme.ThemeManager;
 import sp.phone.ui.fragment.dialog.AlertDialogFragment;
-import sp.phone.view.webview.WebViewEx;
 
 public class SettingsFragment extends BasePreferenceFragment implements Preference.OnPreferenceChangeListener {
 

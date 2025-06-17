@@ -14,11 +14,12 @@ import android.preference.PreferenceManager;
 
 import androidx.core.app.NotificationCompat;
 
+import com.justwen.androidnga.base.activity.ARouterConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import gov.anzong.androidnga.R;
-import gov.anzong.androidnga.activity.MessageListActivity;
 import gov.anzong.androidnga.activity.RecentNotificationActivity;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.DeviceUtils;
@@ -136,7 +137,8 @@ public class NotificationController {
     private void showMessageNotification() {
         Context context = ContextUtils.getContext();
 
-        Intent intent = new Intent(context, MessageListActivity.class);
+        Intent intent = new Intent();
+        intent.setClassName(context, ARouterConstants.ACTIVITY_MESSAGE_LIST_NAME);
 
         PendingIntent pending = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 

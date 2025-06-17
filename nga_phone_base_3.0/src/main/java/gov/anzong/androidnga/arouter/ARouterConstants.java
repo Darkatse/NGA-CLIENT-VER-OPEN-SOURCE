@@ -21,7 +21,7 @@ public class ARouterConstants {
 
     public static final String ACTIVITY_NOTIFICATION = "/activity/notification";
 
-    public static final String ACTIVITY_MESSAGE_LIST = "/activity/message_list";
+    public static final String ACTIVITY_MESSAGE_LIST = com.justwen.androidnga.base.activity.ARouterConstants.ACTIVITY_MESSAGE_LIST;
 
     public static final String[] ACTIVITY_NEED_LOGIN = {
             ACTIVITY_MESSAGE_LIST,

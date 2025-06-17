@@ -86,6 +86,11 @@ public class UserManagerImpl implements UserManager {
                 }
             }
         }
+        if (mActiveIndex >= mUserList.size()) {
+            setActiveUser(0);
+        }
+
+        mBlackList.removeIf(user -> user.getUserId() == null);
     }
 
     private void saveUsers() {
@@ -162,7 +167,7 @@ public class UserManagerImpl implements UserManager {
     @Override
     public void setActiveUser(int index) {
         mActiveIndex = index;
-        commit();
+        mPrefs.edit().putInt(PreferenceKey.USER_ACTIVE_INDEX, mActiveIndex).apply();
     }
 
     @Override
@@ -206,11 +211,13 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public void removeUser(int index) {
-        mUserList.remove(index);
-        if (mUserList.isEmpty() || mActiveIndex == index) {
-            mActiveIndex = 0;
+        User user = mUserList.get(index);
+        if (mActiveIndex >= index) {
+            mActiveIndex--;
+            setActiveUser(mActiveIndex);
         }
-        commit();
+        mUserList.remove(index);
+        ThreadUtils.postOnSubThread(() -> AppDatabase.getInstance().userDao().removeUsers(user));
     }
 
     private void commit() {

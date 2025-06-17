@@ -39,7 +39,7 @@ import sp.phone.ui.fragment.dialog.BaseDialogFragment;
 import sp.phone.ui.fragment.dialog.PostCommentDialogFragment;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.FunctionUtils;
-import sp.phone.util.NLog;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
 import sp.phone.view.RecyclerViewEx;
 

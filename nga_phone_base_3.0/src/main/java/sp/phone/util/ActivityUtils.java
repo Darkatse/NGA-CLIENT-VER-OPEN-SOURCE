@@ -17,6 +17,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.LauncherSubActivity;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.ui.fragment.TopicHistoryFragment;

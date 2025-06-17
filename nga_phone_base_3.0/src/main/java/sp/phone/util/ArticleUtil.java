@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.http.bean.ThreadData;
 import sp.phone.http.bean.ThreadRowInfo;

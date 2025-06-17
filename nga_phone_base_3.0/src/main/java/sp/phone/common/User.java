@@ -6,12 +6,14 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import gov.anzong.androidnga.common.base.JavaBean;
+
 /**
  * @author Justwen
  * @date 2017/12/26
  */
 @Entity(tableName = "users")
-public class User {
+public class User implements JavaBean {
 
     @ColumnInfo(name = "cid")
     public String mCid;
@@ -78,5 +80,16 @@ public class User {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof User && mUserId.equals(getUserId());
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "User{" +
+                "mCid='" + mCid + '\'' +
+                ", mUserId='" + mUserId + '\'' +
+                ", mNickName='" + mNickName + '\'' +
+                ", mAvatarUrl='" + mAvatarUrl + '\'' +
+                '}';
     }
 }

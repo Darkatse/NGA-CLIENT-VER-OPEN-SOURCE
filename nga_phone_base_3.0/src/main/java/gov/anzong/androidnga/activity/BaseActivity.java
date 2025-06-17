@@ -9,13 +9,17 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.justwen.androidnga.cloud.CloudServerManager;
 
@@ -25,6 +29,7 @@ import gov.anzong.androidnga.common.PreferenceKey;
 import sp.phone.common.NotificationController;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.theme.ThemeManager;
+import gov.anzong.androidnga.common.util.NLog;
 
 /**
  * Created by liuboyu on 16/6/28.
@@ -170,6 +175,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+        view.setFitsSystemWindows(!mToolbarEnabled);
     }
 
     @Override

@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gov.anzong.androidnga.Utils;
+import gov.anzong.androidnga.base.logger.Logger;
 import gov.anzong.androidnga.core.HtmlConvertFactory;
 import gov.anzong.androidnga.core.data.AttachmentData;
 import gov.anzong.androidnga.core.data.CommentData;
@@ -27,7 +28,7 @@ import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.theme.ThemeManager;
 import sp.phone.util.FunctionUtils;
 import sp.phone.util.HttpUtil;
-import sp.phone.util.NLog;
+import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
 
 /**
@@ -73,7 +74,7 @@ public class ArticleConvertFactory {
             data.setRowNum(data.getRowList().size());
         } catch (Exception e) {
             NLog.e(TAG, "can not parse :\n" + js);
-            e.printStackTrace();
+            Logger.d(e);
         }
         return data;
     }

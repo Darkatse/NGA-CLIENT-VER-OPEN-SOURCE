@@ -117,7 +117,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     private void showWithWebView() {
-        if (mBaseView == null || !mBaseView.getContext().getSharedPreferences(PreferenceKey.PERFERENCE, Context.MODE_PRIVATE).getBoolean(mBaseView.getString(R.string.pref_show_with_webview), true)) {
+        if (mBaseView == null || !mBaseView.getContext().getSharedPreferences(PreferenceKey.PERFERENCE, Context.MODE_PRIVATE).getBoolean(mBaseView.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
             return;
         }
         Intent intent = new Intent(mBaseView.getContext(), WebViewActivity.class);

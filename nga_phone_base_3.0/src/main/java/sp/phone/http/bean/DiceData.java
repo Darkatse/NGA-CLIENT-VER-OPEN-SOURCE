@@ -1,6 +1,8 @@
 package sp.phone.http.bean;
 
-public class DiceData {
+import gov.anzong.androidnga.common.base.JavaBean;
+
+public class DiceData implements JavaBean {
     public String getTxt() {
         return txt;
     }
