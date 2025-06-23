@@ -27,6 +27,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.ForumListActivity;
+import gov.anzong.androidnga.activity.compose.board.ForumBoardView;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.widget.ViewFlipperEx;
 import gov.anzong.androidnga.common.PreferenceKey;
@@ -94,6 +95,11 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
 
         super.onViewCreated(view, savedInstanceState);
         mPresenter.loadBoardInfo();
+
+        ViewGroup container = view.findViewById(R.id.container);
+        container.addView(new ForumBoardView(requireContext(), getActivityViewModelProvider()));
+        mViewPager.setVisibility(View.GONE);
+        tabLayout.setVisibility(View.GONE);
     }
 
     @Override

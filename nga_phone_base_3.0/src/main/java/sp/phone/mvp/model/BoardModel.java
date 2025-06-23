@@ -98,6 +98,9 @@ public class BoardModel extends BaseModel implements BoardContract.Model {
     private BoardCategory loadBookmarkBoards() {
         BoardCategory category = new BoardCategory("我的收藏");
         List<Board> bookmarkBoards = PreferenceUtils.getData(PreferenceKey.BOOKMARK_BOARD, Board.class);
+        if (bookmarkBoards == null) {
+            bookmarkBoards = new ArrayList<>();
+        }
         for (Board board : bookmarkBoards) {
             board.fixBoardKey();
         }

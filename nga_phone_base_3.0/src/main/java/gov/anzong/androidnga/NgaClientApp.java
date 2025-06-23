@@ -13,11 +13,11 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
 import gov.anzong.androidnga.base.logger.Logger;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.base.util.ThreadUtils;
-import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.common.util.ReflectUtils;
@@ -104,7 +104,17 @@ public class NgaClientApp extends Application {
         RetrofitHelper.setCookieProvider(() -> UserManagerImpl.getInstance().getCookie());
 //        // 注册crashHandler
 //        CrashHandler.getInstance().init(this);
+        initCoreModuleAsync();
 
+    }
+
+    private void initCoreModuleAsync() {
+        ThreadUtils.postOnSubThread(new Runnable() {
+            @Override
+            public void run() {
+                ForumBoardViewModel.INSTANCE.getBoardLiveData();
+            }
+        });
     }
 
     private void checkNewVersion() {

@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -23,7 +24,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    namespace 'gov.anzong.androidnga.core'
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 dependencies {
@@ -32,5 +35,7 @@ dependencies {
 
     implementation "androidx.annotation:annotation:1.1.0"
     compileOnly project(':lib_base_common')
+
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
 
 }

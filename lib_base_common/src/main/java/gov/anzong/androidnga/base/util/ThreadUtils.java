@@ -37,6 +37,10 @@ public class ThreadUtils {
         }
     }
 
+    public static boolean hasRunnable(Runnable runnable) {
+        return sHandler.hasCallbacks(runnable);
+    }
+
     public static void removeRunnable(Runnable runnable) {
         sHandler.removeCallbacks(runnable);
     }

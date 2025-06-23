@@ -12,6 +12,7 @@ buildscript {
         retrofit_version = '2.6.0'
         paging_version = '3.3.0'
         arouter_version = '1.5.2'
+        rxjava_version = '2.2.6'
     }
     repositories {
         maven { url 'https://maven.aliyun.com/repository/google' }
@@ -21,7 +22,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.4.2'
+        classpath 'com.android.tools.build:gradle:8.5.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
