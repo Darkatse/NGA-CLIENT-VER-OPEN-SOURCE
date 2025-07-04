@@ -72,7 +72,7 @@ class MessagePostActivity : BaseComposeActivity() {
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                 ) {
-                    var recipient by remember { mutableStateOf("") }
+                    var recipient by remember { mutableStateOf(viewModel.postData.recipient) }
                     TextField(modifier = Modifier.fillMaxWidth(),
                         maxLines = 1,
                         value = recipient,

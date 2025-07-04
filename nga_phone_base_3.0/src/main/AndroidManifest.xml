@@ -64,9 +64,6 @@
             android:name=".activity.SignPostActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activity.MessagePostActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name=".activity.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/menu_setting"
@@ -175,7 +172,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".gallery.ImageZoomActivity" />
-        <activity android:name=".activity.ForumListActivity" />
         <activity android:name=".activity.WebViewerActivity" />
         <activity android:name=".activity.RecentNotificationActivity" />
         <activity android:name=".activity.LauncherSubActivity" />

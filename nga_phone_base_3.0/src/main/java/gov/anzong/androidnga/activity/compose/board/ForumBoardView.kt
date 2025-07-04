@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -51,12 +52,16 @@ class ForumBoardView(context: Context, provider: ViewModelProvider) :
                 AppTheme {
                     val boardData by forumBoardViewModel.boardLiveData.observeAsState()
                     val tabs = arrayListOf<String>()
-                    boardData?.forEach {
-                        tabs.add(it.name)
+                    boardData?.let {
+                        it.forEach{
+                            tabs.add(it.name)
+                        }
+                        val initialPage = if (forumBoardViewModel.bookmarkSizeLiveData.value!! > 0) 0 else 1
+                        TabLayoutWithPager(tabs = tabs, initialPage = initialPage) {
+                            ForumBoardContent(it)
+                        }
                     }
-                    TabLayoutWithPager(tabs = tabs) {
-                        ForumBoardContent(it)
-                    }
+
                 }
             }
         })
@@ -70,7 +75,11 @@ class ForumBoardView(context: Context, provider: ViewModelProvider) :
                 painter = painterResource(id = R.drawable.default_board_icon),
                 contentDescription = "",
             )
-            Text(modifier = Modifier.padding(start = 8.dp), text = board.name)
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = board.name,
+                color = Color(context.resources.getColor(R.color.text_color, null)),
+            )
         }
     }
 
@@ -78,7 +87,6 @@ class ForumBoardView(context: Context, provider: ViewModelProvider) :
     private fun ForumBoardGridItemView(child: BoardEntity) {
         val paddingValue = 4.dp
         val imageSize = 48.dp
-        val textHeight = 20.dp
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -111,8 +119,8 @@ class ForumBoardView(context: Context, provider: ViewModelProvider) :
             }
             Text(
                 modifier = Modifier
-                    .padding(top = paddingValue, bottom = paddingValue)
-                    .height(textHeight),
+                    .padding(top = paddingValue, bottom = paddingValue),
+                color = Color(context.resources.getColor(R.color.text_color, null)),
                 text = child.name
             )
             Spacer(modifier = Modifier.height(paddingValue))

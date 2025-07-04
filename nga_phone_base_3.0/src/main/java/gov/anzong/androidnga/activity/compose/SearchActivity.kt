@@ -214,12 +214,18 @@ class SearchActivity : BaseComposeActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = text, modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                    text = text,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    color = Color.Gray
                 )
-                Divider(modifier = Modifier
-                    .width(1.dp)
-                    .fillMaxHeight(), color = Color.Gray)
-                Spacer(modifier = Modifier.width(8.dp).background(Color.Gray))
+                Divider(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .fillMaxHeight(), color = Color.Gray
+                )
+                Spacer(modifier = Modifier
+                    .width(8.dp)
+                    .background(Color.Gray))
                 Icon(
                     modifier = Modifier
                         .size(14.dp)

@@ -1,6 +1,7 @@
 package gov.anzong.androidnga.core.board.data
 
 import androidx.annotation.IntDef
+import com.alibaba.fastjson.annotation.JSONField
 import gov.anzong.androidnga.common.base.JavaBean
 
 class BoardEntity : JavaBean {
@@ -9,6 +10,10 @@ class BoardEntity : JavaBean {
 
     var id: String = ""
 
+    // 父板块id
+    @JSONField(serialize = false)
+    var parentId: String? = null
+
     @BoardType
     var type: Int = BoardType.BOARD
 
@@ -16,10 +21,9 @@ class BoardEntity : JavaBean {
 
     var stid: Int = 0
 
-    // 父板块id
-    var parentId: String? = null
-
     var children: MutableList<BoardEntity>? = null
+
+    var head :String? = null
 
     @IntDef(BoardType.BOARD, BoardType.ASSEMBLE, BoardType.GROUP, BoardType.BOOKMARK)
     annotation class BoardType {

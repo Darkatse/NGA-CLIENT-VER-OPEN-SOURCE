@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 import gov.anzong.androidnga.BuildConfig;
+import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.DeviceUtils;
@@ -34,9 +35,7 @@ import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.common.util.FileUtils;
 import gov.anzong.androidnga.common.util.LogUtils;
 import gov.anzong.androidnga.http.OnHttpCallBack;
-import sp.phone.mvp.model.BoardModel;
 import sp.phone.mvp.model.TopicListModel;
-import sp.phone.mvp.model.entity.Board;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ParamKey;
@@ -242,19 +241,15 @@ public class TopicListPresenter extends ViewModel implements LifecycleObserver {
     }
 
     public boolean isBookmarkBoard(int fid, int stid) {
-        return BoardModel.getInstance().isBookmark(fid, stid);
+        return ForumBoardViewModel.INSTANCE.isBookmarkBoard(fid, stid);
     }
 
-    public void addBookmarkBoard(int fid, int stid, String boardName) {
-        BoardModel.getInstance().addBookmark(fid, stid, boardName);
-    }
-
-    public void addBookmarkBoard(Board board) {
-        BoardModel.getInstance().addBookmark(board);
+    public void addBookmarkBoard() {
+        ForumBoardViewModel.INSTANCE.addBookmarkBoard(mRequestParam.title, mRequestParam.fid, mRequestParam.stid, mRequestParam.boardHead);
     }
 
     public void removeBookmarkBoard(int fid, int stid) {
-        BoardModel.getInstance().removeBookmark(fid, stid);
+        ForumBoardViewModel.INSTANCE.removeBookmarkBoard(mRequestParam.fid, mRequestParam.stid);
     }
 
     public void startArticleActivity(String tid, String title) {
@@ -326,8 +321,8 @@ public class TopicListPresenter extends ViewModel implements LifecycleObserver {
         }
         ContentResolver cr = context.getContentResolver();
         String destDir = context.getFilesDir().getAbsolutePath();
-        File tempZipFile = new File(destDir , "temp.zip");
-        try(InputStream is = cr.openInputStream(uri)) {
+        File tempZipFile = new File(destDir, "temp.zip");
+        try (InputStream is = cr.openInputStream(uri)) {
             if (is == null) {
                 return;
             }
@@ -345,5 +340,9 @@ public class TopicListPresenter extends ViewModel implements LifecycleObserver {
         ContentResolver cr = context.getContentResolver();
         String contentType = cr.getType(uri);
         return contentType != null && contentType.contains("zip");
+    }
+
+    public String getBoardName(int fid, int stid) {
+        return ForumBoardViewModel.INSTANCE.getBoardName(fid, stid);
     }
 }

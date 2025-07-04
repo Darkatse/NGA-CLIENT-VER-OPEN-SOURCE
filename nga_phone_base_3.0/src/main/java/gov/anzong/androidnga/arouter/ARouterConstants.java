@@ -11,7 +11,7 @@ public class ARouterConstants {
 
     public static final String ACTIVITY_POST = "/activity/post";
 
-    public static final String ACTIVITY_MESSAGE_POST = "/activity/message_post";
+    public static final String ACTIVITY_MESSAGE_POST = com.justwen.androidnga.base.activity.ARouterConstants.ACTIVITY_MESSAGE_POST;
 
     public static final String ACTIVITY_TOPIC_CONTENT = "/activity/topic_content";
 

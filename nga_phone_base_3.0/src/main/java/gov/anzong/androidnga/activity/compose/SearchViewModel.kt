@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.alibaba.android.arouter.launcher.ARouter
 import gov.anzong.androidnga.arouter.ARouterConstants
 import gov.anzong.androidnga.base.util.ToastUtils
+import gov.anzong.androidnga.core.board.data.BoardEntity
 import sp.phone.common.UserManagerImpl
 import sp.phone.mvp.model.entity.Board
 import sp.phone.param.ParamKey
@@ -99,7 +100,7 @@ class SearchViewModel : ViewModel() {
 
         ActivityUtils.getInstance().noticeSaying(context)
 
-        SearchBoardTask.execute(query) { data: Board? ->
+        SearchBoardTask.execute(query) { data: BoardEntity? ->
             ActivityUtils.getInstance().dismiss()
             if (data == null) {
                 ToastUtils.info("没有找到符合条件的版面或者网络错误")
@@ -107,7 +108,7 @@ class SearchViewModel : ViewModel() {
                 ARouter.getInstance()
                     .build(ARouterConstants.ACTIVITY_TOPIC_LIST)
                     .withInt(ParamKey.KEY_FID, data.fid)
-                    .withString(ParamKey.BOARD_HEAD, data.boardHead)
+                    .withString(ParamKey.BOARD_HEAD, data.head)
                     .withString(ParamKey.KEY_TITLE, data.name)
                     .navigation()
             }

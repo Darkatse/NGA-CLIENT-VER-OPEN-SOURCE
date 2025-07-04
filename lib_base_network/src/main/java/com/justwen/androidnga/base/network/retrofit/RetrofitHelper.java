@@ -152,6 +152,10 @@ public class RetrofitHelper {
         return mRetrofit.create(RetrofitService.class);
     }
 
+    public RetrofitServiceKt getServiceKt() {
+        return mRetrofit.create(RetrofitServiceKt.class);
+    }
+
     public static RetrofitService getAuthCodeService() {
         return new Retrofit.Builder()
                 .baseUrl(URL_NGA_BASE_CC)

@@ -2,13 +2,14 @@ package com.justwen.androidnga.ui.compose.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.alibaba.android.arouter.launcher.ARouter
 import com.justwen.androidnga.base.service.api.IThemeManagerService
 
-private val DarkColorPalette = lightColors(
+private val DarkColorPalette = darkColors(
     primary = PrimaryNight,
     primaryVariant = PrimaryGreen,
     secondary = PrimaryNight,

@@ -23,9 +23,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun TabLayoutWithPager(
     tabs: List<String> = arrayListOf("1", "2"),
+    initialPage : Int = 0,
     content: @Composable ((index: Int) -> Unit)? = null,
 ) {
-    val pagerState = rememberPagerState(pageCount = { tabs.size })
+    val pagerState = rememberPagerState(pageCount = { tabs.size }, initialPage = initialPage)
     val coroutineScope = rememberCoroutineScope()
     Column {
         ScrollableTabRow(

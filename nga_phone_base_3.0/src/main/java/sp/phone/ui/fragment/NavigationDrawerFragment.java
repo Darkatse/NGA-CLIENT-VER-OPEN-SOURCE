@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,26 +17,21 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.viewpager.widget.ViewPager;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.google.android.material.internal.NavigationMenuView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
 
 import gov.anzong.androidnga.R;
-import gov.anzong.androidnga.activity.ForumListActivity;
 import gov.anzong.androidnga.activity.compose.board.ForumBoardView;
+import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.widget.ViewFlipperEx;
 import gov.anzong.androidnga.common.PreferenceKey;
 import sp.phone.common.UserManager;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.mvp.contract.BoardContract;
-import sp.phone.mvp.model.entity.Board;
 import sp.phone.mvp.presenter.BoardPresenter;
-import sp.phone.rxjava.RxEvent;
-import sp.phone.ui.adapter.BoardPagerAdapter;
 import sp.phone.ui.adapter.FlipperUserAdapter;
 import sp.phone.ui.fragment.dialog.AddBoardDialogFragment;
 import sp.phone.util.ActivityUtils;
@@ -48,29 +42,16 @@ import sp.phone.util.ActivityUtils;
  * Created by Justwen on 2017/6/29.
  */
 
-public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> implements BoardContract.View, AdapterView.OnItemClickListener {
-
-    private ViewPager mViewPager;
+public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> implements BoardContract.View {
 
     private ViewFlipperEx mHeaderView;
 
     private TextView mReplyCountView;
 
-    private BoardPagerAdapter mBoardPagerAdapter;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         registerRxBus();
-    }
-
-    @Override
-    protected void accept(RxEvent rxEvent) {
-        if (rxEvent.what == RxEvent.EVENT_SHOW_TOPIC_LIST) {
-            mPresenter.showTopicList((Board) rxEvent.obj);
-        } else {
-            super.accept(rxEvent);
-        }
     }
 
     @Nullable
@@ -87,19 +68,11 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
         initDrawerLayout(view, toolbar);
         initNavigationView(view);
 
-        mViewPager = view.findViewById(R.id.pager);
-        TabLayout tabLayout = view.findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        tabLayout.setSelectedTabIndicatorColor(tabLayout.getTabTextColors().getDefaultColor());
-
         super.onViewCreated(view, savedInstanceState);
         mPresenter.loadBoardInfo();
 
         ViewGroup container = view.findViewById(R.id.container);
         container.addView(new ForumBoardView(requireContext(), getActivityViewModelProvider()));
-        mViewPager.setVisibility(View.GONE);
-        tabLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -142,21 +115,8 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
     }
 
     @Override
-    public void notifyDataSetChanged() {
-        mBoardPagerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public int getCurrentItem() {
-        return mViewPager.getCurrentItem();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_add:
-                gotoForumList();
-                break;
             case R.id.menu_add_id:
                 showAddBoardDialog();
                 break;
@@ -176,15 +136,11 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage("是否要清空我的收藏？")
                 .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> mPresenter.clearRecentBoards())
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    ForumBoardViewModel.INSTANCE.removeAllBookmarkBoard();
+                })
                 .create()
                 .show();
-    }
-
-
-    private void gotoForumList() {
-        Intent intent = new Intent(getActivity(), ForumListActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -193,7 +149,7 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
     }
 
     private void showAddBoardDialog() {
-        new AddBoardDialogFragment().setOnAddBookmarkListener((name, fid, stid) -> mPresenter.addBoard(fid, name, stid))
+        new AddBoardDialogFragment().setOnAddBookmarkListener(ForumBoardViewModel.INSTANCE::addBookmarkBoard)
                 .show(getChildFragmentManager());
     }
 
@@ -207,15 +163,6 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
 
     @Override
     public void onResume() {
-        if (mBoardPagerAdapter == null) {
-            mBoardPagerAdapter = new BoardPagerAdapter(getChildFragmentManager(), mPresenter.getBoardCategories());
-            mViewPager.setAdapter(mBoardPagerAdapter);
-            if (mPresenter.getBookmarkCategory().size() == 0) {
-                mViewPager.setCurrentItem(1);
-            }
-        } else {
-            mBoardPagerAdapter.notifyDataSetChanged();
-        }
         setReplyCount(PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(PreferenceKey.KEY_REPLY_COUNT, 0));
         UserManager um = UserManagerImpl.getInstance();
         if (um.getUserSize() > 0 && um.getActiveUserIndex() != mHeaderView.getDisplayedChild()) {
@@ -228,19 +175,6 @@ public class NavigationDrawerFragment extends BaseMvpFragment<BoardPresenter> im
     public int switchToNextUser() {
         mHeaderView.showPrevious();
         return mHeaderView.getDisplayedChild();
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String fidString;
-        if (parent != null) {
-            fidString = (String) parent.getItemAtPosition(position);
-            mPresenter.toTopicListPage(position, fidString);
-        } else {
-            mPresenter.showTopicList((Board) view.getTag());
-        }
-
-
     }
 
 }

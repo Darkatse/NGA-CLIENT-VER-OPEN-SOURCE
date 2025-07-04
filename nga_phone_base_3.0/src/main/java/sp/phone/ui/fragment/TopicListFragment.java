@@ -23,11 +23,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.LauncherSubActivity;
-import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.ToastUtils;
-import gov.anzong.androidnga.activity.compose.board.ForumBoardModel;
-import sp.phone.mvp.model.entity.Board;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ParamKey;
 import sp.phone.util.ActivityUtils;
@@ -175,19 +172,15 @@ public class TopicListFragment extends TopicSearchFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_add_bookmark:
-                Board board = new Board(mRequestParam.fid,mRequestParam.stid,mRequestParam.title);
-                board.setBoardHead(mRequestParam.boardHead);
-                mPresenter.addBookmarkBoard(board);
+                mPresenter.addBookmarkBoard();
                 item.setVisible(false);
                 mOptionMenu.findItem(R.id.menu_remove_bookmark).setVisible(true);
-                ForumBoardViewModel.INSTANCE.addBookmarkBoard(mRequestParam.fid,mRequestParam.stid);
                 ToastUtils.showToast(R.string.toast_add_bookmark_board);
                 break;
             case R.id.menu_remove_bookmark:
                 mPresenter.removeBookmarkBoard(mRequestParam.fid, mRequestParam.stid);
                 item.setVisible(false);
                 mOptionMenu.findItem(R.id.menu_add_bookmark).setVisible(true);
-                ForumBoardViewModel.INSTANCE.removeBookmarkBoard(mRequestParam.fid,mRequestParam.stid);
                 ToastUtils.showToast(R.string.toast_remove_bookmark_board);
                 break;
             case R.id.menu_sub_board:
