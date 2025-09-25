@@ -239,14 +239,12 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             intent.putExtra("tid", tidStr);
             intent.putExtra("action", "reply");
 
-            if (UserManagerImpl.getInstance().getActiveUser() != null) {// 登入了才能发
+            if (UserManagerImpl.getInstance().hasValidUser()) {// 登入了才能发
                 intent.setClass(
                         ContextUtils.getContext(),
                         PhoneConfiguration.getInstance().postActivityClass);
             } else {
-                intent.setClass(
-                        ContextUtils.getContext(),
-                        PhoneConfiguration.getInstance().loginActivityClass);
+                ActivityUtils.startLoginActivity(mContext);
             }
             return intent;
         }

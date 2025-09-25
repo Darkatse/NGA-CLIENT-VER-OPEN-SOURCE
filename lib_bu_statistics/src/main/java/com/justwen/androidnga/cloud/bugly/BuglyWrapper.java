@@ -11,7 +11,9 @@ public class BuglyWrapper {
         if (!BuildConfig.DEBUG) {
             int id = context.getResources().getIdentifier("bugly_app_id", "string", context.getPackageName());
             if (id > 0) {
-                CrashReport.initCrashReport(context, context.getString(id), false);
+                CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(context);
+                strategy.setAppChannel("GooglePlay");
+                CrashReport.initCrashReport(context, context.getString(id), false, strategy);
             }
         }
     }

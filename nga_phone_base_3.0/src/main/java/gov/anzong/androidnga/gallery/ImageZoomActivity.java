@@ -53,6 +53,7 @@ public class ImageZoomActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_zoom);
         receiveIntent();
@@ -63,11 +64,7 @@ public class ImageZoomActivity extends BaseActivity {
     }
 
     private void initActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-        }
+        setupToolbar();
     }
 
     private void initGallery() {

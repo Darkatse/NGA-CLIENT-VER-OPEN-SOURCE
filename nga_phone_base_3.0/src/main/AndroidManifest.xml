@@ -13,6 +13,8 @@
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove"/>
 
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
+
     <application
         android:name=".NgaClientApp"
         android:anyDensity="false"
@@ -46,12 +48,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activity.LoginActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/label_activity_login"
-            android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".activity.ProfileActivity" />
         <activity
             android:name=".activity.PostActivity"
@@ -172,7 +168,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".gallery.ImageZoomActivity" />
-        <activity android:name=".activity.WebViewerActivity" />
         <activity android:name=".activity.RecentNotificationActivity" />
         <activity android:name=".activity.LauncherSubActivity" />
 
@@ -186,8 +181,6 @@
 
         <activity android:name=".activity.TopicCacheActivity" android:label="我的缓存" />
         <activity android:name=".activity.ArticleCacheActivity" />
-
-        <activity android:name=".activity.WebViewActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

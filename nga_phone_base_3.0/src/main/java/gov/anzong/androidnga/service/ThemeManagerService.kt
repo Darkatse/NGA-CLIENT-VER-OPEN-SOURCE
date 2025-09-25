@@ -15,6 +15,10 @@ class ThemeManagerService : IThemeManagerService {
         return ThemeManager.getInstance().getThemeIndex()
     }
 
+    override fun getTheme(): Int {
+        return ThemeManager.getInstance().getTheme(true)
+    }
+
     override fun init(p0: Context?) {
     }
 }

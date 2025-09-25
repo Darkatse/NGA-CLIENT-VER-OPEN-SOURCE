@@ -27,6 +27,10 @@ public class PreferenceUtils {
         sPreferences = ContextUtils.getDefaultSharedPreferences();
     }
 
+    public static SharedPreferences getDefaultPreferences() {
+        return sPreferences;
+    }
+
     public static void transfer(Context context) {
        SharedPreferences oldPref = context.getSharedPreferences(PREFERENCE_DEPRECATED, Context.MODE_PRIVATE);
        Map<String, ?> oldMap = oldPref.getAll();

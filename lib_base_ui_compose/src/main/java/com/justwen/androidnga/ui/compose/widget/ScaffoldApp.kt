@@ -1,8 +1,8 @@
 package com.justwen.androidnga.ui.compose.widget
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -26,8 +26,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -39,7 +42,7 @@ fun FloatingActionButton(fabClick: (() -> Unit)? = null) {
             modifier = Modifier.navigationBarsPadding(),
             backgroundColor = MaterialTheme.colors.primary,
             onClick = { fabClick.invoke() }) {
-            Icon(Icons.Default.Add, contentDescription = "Add")
+            Icon(Icons.Default.Add, tint = Color.White, contentDescription = "Add")
         }
     }
 }
@@ -49,19 +52,38 @@ fun OptionActionMenu(optionActions: List<OptionMenuData>? = null) {
     if (optionActions == null) {
         return
     }
-    var expanded by remember { mutableStateOf(false) }
-    IconButton(onClick = { expanded = !expanded }) {
-        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "")
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            optionActions.forEach(action = {
-                DropdownMenuItem(onClick = {
-                    expanded = false
-                    it.action()
-                }) {
-                    Text(text = it.title!!)
-                }
-            })
+
+    val showItems = optionActions.filter { it.type == OptionMenuData.OPTION_MENU_TYPE_ALWAYS_SHOW }
+    val hideItems = optionActions.filter { it.type == OptionMenuData.OPTION_MENU_TYPE_HIDDEN }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        showItems.forEach {
+            IconButton(onClick = {
+                it.action()
+            }) {
+                Icon(
+                    painter = painterResource(it.icon!!),
+                    contentDescription = "",
+                    tint = Color.White
+                )
+            }
+
         }
+        var expanded by remember { mutableStateOf(false) }
+        IconButton(onClick = { expanded = !expanded }) {
+            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "", tint = Color.White)
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                hideItems.forEach(action = {
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        it.action()
+                    }) {
+                        Text(text = it.title!!)
+                    }
+                })
+            }
+        }
+
     }
 
 }
@@ -79,7 +101,7 @@ fun TopAppBarEx(
         windowInsets = WindowInsets(0, pxValue.toInt(), 0, 0),
         title = {
             if (topAppBarData.customTopBar == null) {
-                Text(topAppBarData.title)
+                Text(text = topAppBarData.title, color = Color.White)
             } else {
                 topAppBarData.customTopBar!!.invoke()
             }
@@ -90,6 +112,7 @@ fun TopAppBarEx(
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    tint = Color.White,
                     contentDescription = "Localized description"
                 )
             }
@@ -107,7 +130,7 @@ data class TopAppBarData(val title: String) {
 
 data class OptionMenuData(
     val title: String? = null,
-    val icon: Icon? = null,
+    val icon: Int? = null,
     val action: (() -> Unit),
     val type: Int = OPTION_MENU_TYPE_HIDDEN
 ) {

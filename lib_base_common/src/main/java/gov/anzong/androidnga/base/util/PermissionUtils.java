@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -42,7 +43,7 @@ public class PermissionUtils {
         new RxPermissions(activity).requestEach(permissions).subscribe(consumer);
     }
 
-    public static void request(AppCompatActivity activity, @Nullable Observer<Boolean> consumer, String permission) {
+    public static void request(FragmentActivity activity, @Nullable Observer<Boolean> consumer, String permission) {
         new RxPermissions(activity).request(permission).subscribe(consumer == null ? new DefaultSubsriber<>() : consumer);
     }
 

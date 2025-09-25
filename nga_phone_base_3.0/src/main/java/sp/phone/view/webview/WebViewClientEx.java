@@ -30,7 +30,7 @@ public class WebViewClientEx extends WebViewClient {
     private static final String NGA_USER_PROFILE_END = "&";
 
     private static final String[] SUFFIX_IMAGE = {
-            ".gif", ".jpg", ".png", ".jpeg", ".bmp"
+            ".gif", ".jpg", ".png", ".jpeg", ".bmp", ".webp"
     };
 
     private static final String NGA_READ = "/read.php?";

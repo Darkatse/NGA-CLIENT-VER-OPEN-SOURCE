@@ -10,40 +10,30 @@ import androidx.annotation.Nullable;
 import com.alibaba.fastjson.JSON;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import gov.anzong.androidnga.base.util.PreferenceUtils;
-import gov.anzong.androidnga.base.util.ThreadUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
-import gov.anzong.androidnga.db.AppDatabase;
+
+import com.justwent.androidnga.bu.UserManager;
+
 import sp.phone.http.bean.ThreadData;
 import sp.phone.http.bean.ThreadRowInfo;
 
 
-public class UserManagerImpl implements UserManager {
-
-    private Context mContext;
-
-    private int mActiveIndex;
+public class UserManagerImpl implements sp.phone.common.UserManager {
 
     private List<User> mBlackList;
-
-    private List<User> mUserList;
 
     private SharedPreferences mPrefs;
 
     private SharedPreferences mAvatarPreferences;
 
-    // TODO: 2018/4/15  temp solution
-    private boolean mAvatarUpdated;
-
     private static class SingletonHolder {
 
-        static UserManager sInstance = new UserManagerImpl();
+        static UserManagerImpl sInstance = new UserManagerImpl();
     }
 
-    public static UserManager getInstance() {
+    public static UserManagerImpl  getInstance() {
         return SingletonHolder.sInstance;
     }
 
@@ -53,12 +43,10 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public void initialize(Context context) {
-        mContext = context.getApplicationContext();
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         mAvatarPreferences = context.getSharedPreferences(PreferenceKey.PREFERENCE_AVATAR, Context.MODE_PRIVATE);
 
-        mActiveIndex = PreferenceUtils.getData(PreferenceKey.USER_ACTIVE_INDEX, 0);
 
         String blackListStr = mPrefs.getString(PreferenceKey.BLACK_LIST, "");
         if (TextUtils.isEmpty(blackListStr)) {
@@ -69,68 +57,43 @@ public class UserManagerImpl implements UserManager {
                 mBlackList = new ArrayList<>();
             }
         }
-
-        mUserList = AppDatabase.getInstance().userDao().loadUser();
         transformData();
     }
 
     private void transformData() {
-        if (mUserList.isEmpty()) {
-            String oldUserStr = PreferenceUtils.getData(PreferenceKey.USER_LIST, "");
-            if (!TextUtils.isEmpty(oldUserStr)) {
-                List<User> oldList = JSON.parseArray(oldUserStr, User.class);
-                PreferenceUtils.edit().remove(PreferenceKey.USER_LIST).apply();
-                if (oldList != null) {
-                    mUserList.addAll(oldList);
-                    saveUsers();
-                }
-            }
-        }
-        if (mActiveIndex >= mUserList.size()) {
-            setActiveUser(0);
-        }
-
         mBlackList.removeIf(user -> user.getUserId() == null);
-    }
-
-    private void saveUsers() {
-        ThreadUtils.postOnSubThread(() -> {
-            synchronized (this) {
-                AppDatabase.getInstance().userDao().updateUsers(mUserList.toArray(new User[0]));
-            }
-        });
     }
 
     @Override
     public int getActiveUserIndex() {
-        return mActiveIndex;
+        return UserManager.INSTANCE.getActiveIndex();
     }
 
     @Nullable
     @Override
     public User getActiveUser() {
-        return mUserList == null || mUserList.isEmpty() ? null : mUserList.get(mActiveIndex);
+        return UserManager.INSTANCE.getActiveUser();
     }
 
     @Override
     public List<User> getUserList() {
-        return mUserList;
+        return UserManager.INSTANCE.getUserList();
     }
 
     @Override
     public boolean hasValidUser() {
-        return mUserList != null && !mUserList.isEmpty();
+        return UserManager.INSTANCE.hasValidUser();
     }
 
     @Override
     public String getCid() {
-        User user = getActiveUser();
+        User user = UserManager.INSTANCE.getActiveUser();
         return user != null ? user.getCid() : "";
     }
 
     @Override
     public String getUserName() {
-        User user = getActiveUser();
+        User user = UserManager.INSTANCE.getActiveUser();
         return user != null ? user.getNickName() : "";
     }
 
@@ -145,59 +108,33 @@ public class UserManagerImpl implements UserManager {
                 return;
             }
         }
-
-        for (User user : mUserList) {
-            if (user.getUserId().equals(String.valueOf(userId))) {
-                if (user.getAvatarUrl() == null || !mAvatarUpdated) {
-                    user.setAvatarUrl(url);
-                    commit();
-                    mAvatarUpdated = true;
-                }
-                return;
-            }
-        }
+        UserManager.INSTANCE.setAvatarUrl(String.valueOf(userId), url);
     }
 
     @Override
     public String getUserId() {
-        User user = getActiveUser();
+        User user = UserManager.INSTANCE.getActiveUser();
         return user != null ? user.getUserId() : "";
     }
 
     @Override
     public void setActiveUser(int index) {
-        mActiveIndex = index;
-        mPrefs.edit().putInt(PreferenceKey.USER_ACTIVE_INDEX, mActiveIndex).apply();
+        UserManager.INSTANCE.setActiveIndex(index);
     }
 
     @Override
     public int toggleUser(boolean isNext) {
-        mActiveIndex = getNextActiveIndex(isNext);
-        commit();
-        return mActiveIndex;
+        return UserManager.INSTANCE.toggleUser(isNext);
 
     }
 
     private int getNextActiveIndex(boolean isNext) {
-        if (mUserList.isEmpty()) {
-            return -1;
-        }
-        int index = isNext ? mActiveIndex + 1 : mActiveIndex + mUserList.size() - 1;
-        return index % mUserList.size();
+        return UserManager.INSTANCE.getNextActiveIndex(isNext);
     }
 
     @Override
     public void addUser(User user) {
-
-        for (int i = 0; i < mUserList.size(); i++) {
-            if (mUserList.get(i).getUserId().equals(user.getUserId())) {
-                mUserList.set(i, user);
-                commit();
-                return;
-            }
-        }
-        mUserList.add(user);
-        commit();
+        UserManager.INSTANCE.addUser(user);
     }
 
     @Override
@@ -211,60 +148,42 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public void removeUser(int index) {
-        User user = mUserList.get(index);
-        if (mActiveIndex >= index) {
-            mActiveIndex--;
-            setActiveUser(mActiveIndex);
-        }
-        mUserList.remove(index);
-        ThreadUtils.postOnSubThread(() -> AppDatabase.getInstance().userDao().removeUsers(user));
+        UserManager.INSTANCE.removeUser(index);
     }
 
     private void commit() {
         mPrefs.edit()
-                .putInt(PreferenceKey.USER_ACTIVE_INDEX, mActiveIndex)
                 .putString(PreferenceKey.BLACK_LIST, JSON.toJSONString(mBlackList))
                 .apply();
-        saveUsers();
     }
 
     @Override
     public String getCookie() {
-        return getCookie(getActiveUser());
+        return UserManager.INSTANCE.getCookie(UserManager.INSTANCE.getActiveUser());
     }
 
     @Override
     public String getCookie(User user) {
-        if (user != null
-                && !TextUtils.isEmpty(user.getCid())
-                && !TextUtils.isEmpty(user.getUserId())) {
-            return "ngaPassportUid=" + user.getUserId() + "; ngaPassportCid=" + user.getCid();
-        } else {
-            return "";
-        }
+        return UserManager.INSTANCE.getCookie(user);
     }
 
     @Override
     public String getNextCookie() {
-        int nextIndex = getNextActiveIndex(true);
-        if (nextIndex == -1) {
-            return null;
-        }
-        return nextIndex != mActiveIndex ? getCookie(mUserList.get(nextIndex)) : null;
+        return UserManager.INSTANCE.getNextCookie();
     }
 
     @Override
     public void swapUser(int from, int to) {
-        if (from < to) {
-            for (int i = from; i < to; i++) {
-                Collections.swap(mUserList, i, i + 1);
-            }
-        } else {
-            for (int i = from; i > to; i--) {
-                Collections.swap(mUserList, i, i - 1);
-            }
-        }
-        commit();
+        //if (from < to) {
+        //    for (int i = from; i < to; i++) {
+        //        Collections.swap(mUserList, i, i + 1);
+        //    }
+        //} else {
+        //    for (int i = from; i > to; i--) {
+        //        Collections.swap(mUserList, i, i - 1);
+        //    }
+        //}
+        //commit();
     }
 
     @Override
@@ -304,7 +223,7 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public int getUserSize() {
-        return mUserList == null ? 0 : mUserList.size();
+        return UserManager.INSTANCE.getUserList().size();
     }
 
     @Override

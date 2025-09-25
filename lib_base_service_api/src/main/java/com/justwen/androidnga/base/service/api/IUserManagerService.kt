@@ -10,4 +10,6 @@ interface IUserManagerService : IProvider {
     }
 
     fun showUserSwitchDialog(context: Context, callback: (() -> Unit)? = null)
+
+    fun addUser(uid: String, cid: String, name: String)
 }

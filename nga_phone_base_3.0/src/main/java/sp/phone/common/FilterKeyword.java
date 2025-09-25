@@ -1,6 +1,8 @@
 package sp.phone.common;
 
-public class FilterKeyword {
+import gov.anzong.androidnga.common.base.JavaBean;
+
+public class FilterKeyword implements JavaBean {
   private String keyword;
   private boolean enabled;
 

@@ -7,7 +7,7 @@ public class ARouterConstants {
 
     public static final String ACTIVITY_PROFILE = "/activity/profile";
 
-    public static final String ACTIVITY_LOGIN = "/activity/login";
+    public static final String ACTIVITY_LOGIN = com.justwen.androidnga.base.activity.ARouterConstants.ACTIVITY_LOGIN;
 
     public static final String ACTIVITY_POST = "/activity/post";
 

@@ -117,7 +117,7 @@ repositories {
 dependencies {
     implementation(name: 'floatingactionmenu', ext: 'aar')
 
-    implementation "com.google.android.material:material:$androidxMaterial"
+    implementation "com.google.android.material:material:$androidx_material_version"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
@@ -129,6 +129,8 @@ dependencies {
 
     //butterKnife
     implementation 'com.jakewharton:butterknife:10.2.1'
+    implementation 'androidx.compose.material3:material3-android:1.3.2'
+    implementation 'androidx.compose.animation:animation-android:1.6.8'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
     kapt 'com.jakewharton:butterknife-compiler:10.2.1'
 
@@ -168,8 +170,10 @@ dependencies {
     implementation project(':lib_base_network')
     implementation project(':lib_core_data')
     implementation project(':lib_bu_message')
+    implementation project(':lib_bu_account')
     implementation project(':lib_base_service_api')
     implementation project(':lib_base_ui_compose')
+    implementation project(':lib_base_ui')
 
     implementation project(':lib_module_debug')
 

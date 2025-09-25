@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Build;
-import android.util.DisplayMetrics;
 
 /**
  * Created by Justwen on 2017/7/16.
@@ -56,12 +55,5 @@ public class DeviceUtils {
 
     public static boolean isLandscape(Context context) {
         return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    }
-
-    public static boolean isFullScreenDevice() {
-        DisplayMetrics dm = ContextUtils.getResources().getDisplayMetrics();
-        float width = dm.widthPixels;
-        float height = dm.heightPixels;
-        return height / width >= 1.97f;
     }
 }

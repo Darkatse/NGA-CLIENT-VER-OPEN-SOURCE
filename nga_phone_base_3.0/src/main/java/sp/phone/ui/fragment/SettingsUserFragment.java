@@ -16,11 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import gov.anzong.androidnga.R;
-import gov.anzong.androidnga.activity.LoginActivity;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManager;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.ui.adapter.UserListAdapter;
+import sp.phone.util.ActivityUtils;
 import sp.phone.view.RecyclerViewEx;
 
 /**
@@ -89,7 +89,7 @@ public class SettingsUserFragment extends BaseFragment implements View.OnClickLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_add_user) {
-            startActivity(new Intent(getContext(), LoginActivity.class));
+            ActivityUtils.startLoginActivity(getContext());
             return true;
         } else {
             return super.onOptionsItemSelected(item);

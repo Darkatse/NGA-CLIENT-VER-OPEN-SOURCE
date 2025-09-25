@@ -10,7 +10,7 @@ import java.util.LinkedList
 
 class SearchModel {
 
-    private val topiKeyList: MutableList<String>
+    private val topiKeyList: LinkedList<String>
         get() {
             val localKeyList = JSON.parseArray(
                 PreferenceUtils.getData(getPreferenceKey(SEARCH_MODE_TOPIC), ""),
@@ -23,7 +23,7 @@ class SearchModel {
             }
         }
 
-    private val boardKeyList: MutableList<String>
+    private val boardKeyList: LinkedList<String>
         get() {
             val localKeyList = JSON.parseArray(
                 PreferenceUtils.getData(getPreferenceKey(SEARCH_MODE_BOARD), ""),
@@ -36,7 +36,7 @@ class SearchModel {
             }
         }
 
-    private val userKeyList: MutableList<String>
+    private val userKeyList: LinkedList<String>
         get() {
             val localKeyList = JSON.parseArray(
                 PreferenceUtils.getData(getPreferenceKey(SEARCH_MODE_USER), ""),
@@ -76,7 +76,11 @@ class SearchModel {
         if (!keyList.contains(key)) {
             keyList.add(0, key)
             if (keyList.size > SEARCH_KEY_MAX_COUNT) {
-                keyList.removeLast()
+                try {
+                    keyList.removeLast()
+                } catch (e: Throwable) {
+                    keyList.removeAt(keyList.size - 1)
+                }
             }
             saveHistory(searchMode, keyList)
             return keyList.toList()

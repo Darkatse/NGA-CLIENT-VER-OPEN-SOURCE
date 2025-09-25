@@ -7,6 +7,7 @@ import android.webkit.WebView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwen.androidnga.cloud.CloudServerManager;
+import com.justwent.androidnga.bu.UserManager;
 
 import org.apache.commons.io.FileUtils;
 
@@ -100,6 +101,7 @@ public class NgaClientApp extends Application {
 
     private void initCoreModule() {
         UserManagerImpl.getInstance().initialize(this);
+        UserManager.INSTANCE.getActiveUser();
         FilterKeywordsManagerImpl.getInstance().initialize(this);
         RetrofitHelper.setCookieProvider(() -> UserManagerImpl.getInstance().getCookie());
 //        // 注册crashHandler

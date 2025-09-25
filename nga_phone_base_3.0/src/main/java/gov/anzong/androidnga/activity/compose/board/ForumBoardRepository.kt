@@ -8,6 +8,7 @@ import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel.BOARD_RE
 import gov.anzong.androidnga.activity.compose.board.data.ForumsListBean
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import gov.anzong.androidnga.base.utils.Files
+import gov.anzong.androidnga.common.util.LogUtils
 import gov.anzong.androidnga.core.board.data.BoardEntity
 import java.io.File
 
@@ -91,13 +92,18 @@ object ForumBoardRepository {
     }
 
     suspend fun requestRemoteBoardList(context: Context): ForumsListBean? {
-        val url = Utils.getNGAHost() + FORUM_URL
-        val result = RetrofitHelper.getInstance().serviceKt.getString(url)
-        val bean = JSON.parseObject(result, ForumsListBean::class.java)
-        if (bean != null) {
-            writeRemoteBoardList(context, result)
+        try {
+            val url = Utils.getNGAHost() + FORUM_URL
+            val result = RetrofitHelper.getInstance().serviceKt.getString(url)
+            val bean = JSON.parseObject(result, ForumsListBean::class.java)
+            if (bean != null) {
+                writeRemoteBoardList(context, result)
+            }
+            return bean
+        }  catch (e: Exception) {
+            LogUtils.e("ForumBoardRepository", "requestRemoteBoardList: ${e.message}")
+            return null
         }
-        return bean
     }
 
     fun loadRemoteBoardList(context: Context): ForumsListBean? {

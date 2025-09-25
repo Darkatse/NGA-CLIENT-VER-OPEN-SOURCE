@@ -12,4 +12,6 @@ interface IThemeManagerService : IProvider {
 
     fun getThemeIndex(): Int
 
+    fun getTheme(): Int
+
 }
