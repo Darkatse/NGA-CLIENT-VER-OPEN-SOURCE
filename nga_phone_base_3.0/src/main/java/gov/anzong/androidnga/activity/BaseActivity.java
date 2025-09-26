@@ -1,8 +1,10 @@
 package gov.anzong.androidnga.activity;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -21,7 +23,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.justwen.androidnga.cloud.CloudServerManager;
 
@@ -42,59 +46,98 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private boolean mToolbarEnabled;
 
+    private boolean mComposeEnabled;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mConfig = PhoneConfiguration.getInstance();
         updateThemeUi();
+
+        // 1：在 super.onCreate 之前调用，实现真正的边到边布局
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
         super.onCreate(savedInstanceState);
         ThemeManager.getInstance().initializeWebTheme(this);
 
-
-        /********************设置开始*****************************/
+        // --------------- 统一的沉浸式设置开始 -----------------------
         Window window = getWindow();
-        //        请求进行全屏布局
-
-        // SYSTEM_UI_FLAG_LAYOUT_STABLE
-            //*** Tells the system that the window wishes the content to
-            //*** be laid out at the most extreme scenario. See the docs for
-            //*** more information on the specifics
-        //SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            //*** Tells the system that the window wishes the content to
-            //*** be laid out as if the navigation bar was hidden
         window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        // 2：将系统栏背景设置为透明
+        int primaryColor = ThemeManager.getInstance().getPrimaryColor(this);
+        window.setStatusBarColor(primaryColor);
         window.setNavigationBarColor(Color.TRANSPARENT);
 
-        // 在安卓10以上禁用系统栏视觉保护。
-        // 当设置了 导航栏 背景为透明时，NavigationBarContrastEnforced 如果为true，则系统会自动绘制一个半透明背景
-        // 状态栏的StatusBarContrast 效果同理，但是值默认为false，因此不用设置
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.setNavigationBarContrastEnforced(false);
+        // 禁用系统对比度保护
+        window.setNavigationBarContrastEnforced(false);
+        // 状态栏的默认为false，一般不用设置
+        // window.setStatusBarContrastEnforced(false);
 
-            
-        // 获取状态栏的高度
-        int statusBarHeight = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        // 3：为 View 体系的 UI 添加 Insets 监听，以处理边距
+        // 将监听器附加到根内容视图上
+        if (!mComposeEnabled) {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+                Insets statusBarsInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+                Insets navigationBarsInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+                // 处理顶部的 AppBar
+                View appBar = v.findViewById(R.id.appbar);
+                if (appBar != null) {
+                    appBar.setPadding(
+                            appBar.getPaddingLeft(),
+                            statusBarsInsets.top,
+                            appBar.getPaddingRight(),
+                            appBar.getPaddingBottom()
+                    );
+                }
+//                // 处理底部的SwipeRefresh
+//                View mainContent = v.findViewById(R.id.swipe_refresh);
+//                if (mainContent != null) {
+//                    // 为内容区域设置底部 padding，防止列表的最后一项被导航栏遮挡
+//                    mainContent.setPadding(
+//                            mainContent.getPaddingLeft(),
+//                            mainContent.getPaddingTop(),
+//                            mainContent.getPaddingRight(),
+//                            navigationBarsInsets.bottom
+//                    );
+//                }
+
+                // 告诉系统我们已经处理了 Insets，系统无需再进行默认处理
+                return WindowInsetsCompat.CONSUMED;
+            });
         }
 
-        // 给根视图添加一个顶部的padding
-        View rootView = findViewById(android.R.id.content);
-        rootView.setPadding(0, statusBarHeight, 0, 0);
+
+        // ------------------ 设置结束 ------------------------------
+    }
+
+    public void setComposeEnabled(boolean composeEnabled) {
+        mComposeEnabled = composeEnabled;
+    }
+
+    // Android15上开启EdgeToEdge后adjustResize会失效，这里临时做下兼容
+    protected void compatActivityAdjustResize(Activity activity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return;
         }
-
-        /********************设置结束*****************************/
-
-        
-        // try {
-        //     if (ThemeManager.getInstance().isNightMode()) {
-        //         getWindow().setNavigationBarColor(ContextUtils.getColor(R.color.background_color));
-        //     }
-        // } catch (Exception e) {
-        //     NLog.e("set navigation bar color exception occur: " + e);
-        // }
+        View content = ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
+        final Rect r = new Rect();
+        content.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            content.getWindowVisibleDisplayFrame(r);
+            int screenHeight = content.getRootView().getHeight();
+            int statusBarHeight = 0;
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+            }
+            int keyboardHeight = screenHeight - r.bottom - statusBarHeight;
+            if (keyboardHeight > screenHeight / 4) { // 键盘高度超过屏幕1/4
+                content.setPadding(0, 0, 0, keyboardHeight);
+            } else {
+                content.setPadding(0, 0, 0, 0);
+            }
+        });
     }
 
     protected void setToolbarEnabled(boolean enabled) {
@@ -182,7 +225,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        view.setFitsSystemWindows(!mToolbarEnabled);
+//        view.setFitsSystemWindows(!mToolbarEnabled);
     }
 
     @Override
