@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -25,6 +26,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -101,6 +103,17 @@ class UserManagerFragment : BaseComposeFragment() {
                     error = painterResource(id = R.drawable.drawerdefaulticon),
                     placeholder = painterResource(id = R.drawable.drawerdefaulticon),
                 )
+                val activeIndex = UserManager.getActiveIndexLiveData().observeAsState()
+                val selected = (activeIndex.value == index)
+                RadioButton(
+                    selected = selected,
+                    onClick = {
+                        if (!selected) {
+                            UserManager.setActiveIndex(index)
+                        }
+                    }
+                )
+
                 Image(
                     modifier = Modifier
                         .size(36.dp)
@@ -109,7 +122,7 @@ class UserManagerFragment : BaseComposeFragment() {
                     contentDescription = ""
                 )
                 Text(
-                    text = user.toShortString(),
+                    text = user.mNickName,
                     maxLines = 1,
                     modifier = Modifier.padding(end = 32.dp)
                 )
@@ -120,6 +133,7 @@ class UserManagerFragment : BaseComposeFragment() {
             }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
+                    tint = Color.Gray,
                     contentDescription = "新增",
                 )
             }
