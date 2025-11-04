@@ -30,7 +30,7 @@ public class ProgressBarEx {
     }
 
     private void setupWithFragment(Fragment fragment) {
-        mLoadToast = new LoadToast(Objects.requireNonNull(fragment.getActivity()));
+        mLoadToast = new LoadToast(fragment.requireActivity());
         mLoadToast.setBackgroundColor(ThemeUtils.getAccentColor());
         mLoadToast.setTextColor(Color.WHITE);
         mLoadToast.setProgressColor(Color.WHITE);

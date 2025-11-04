@@ -171,6 +171,8 @@
         <activity android:name=".activity.RecentNotificationActivity" />
         <activity android:name=".activity.LauncherSubActivity" />
 
+        <activity android:name=".activity.compose.TemplateComposeActivity" />
+
         <activity
             android:name=".activity.compose.SearchActivity"
             android:label="@string/search" />

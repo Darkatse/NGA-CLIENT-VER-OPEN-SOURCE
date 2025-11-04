@@ -19,6 +19,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
 import gov.anzong.androidnga.activity.LauncherSubActivity;
 import gov.anzong.androidnga.activity.SettingsActivity;
+import gov.anzong.androidnga.activity.compose.TemplateComposeActivity;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.ThreadUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
@@ -120,26 +121,19 @@ public class SettingsFragment extends BasePreferenceFragment implements Preferen
 
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
-        if (preference.getFragment() != null) {
-            Intent intent = new Intent(getActivity(), LauncherSubActivity.class);
+        Intent intent;
+        if (preference.getFragment() != null && (preference.getFragment().contains("compose") || preference.getKey() != null && preference.getKey().contains("compose"))) {
+            intent = new Intent(getActivity(), TemplateComposeActivity.class);
+            intent.putExtra("fragment", preference.getFragment());
+            startActivity(intent);
+            return true;
+        } else if (preference.getFragment() != null) {
+            intent = new Intent(getActivity(), LauncherSubActivity.class);
             intent.putExtra("fragment", preference.getFragment());
             startActivity(intent);
             return true;
         }
-        switch (preference.getKey()) {
-            case PreferenceKey.ADJUST_SIZE:
-            case PreferenceKey.PREF_USER:
-            case PreferenceKey.PREF_BLACK_LIST:
-            case "pref_keyword":
-                Intent intent = new Intent(getActivity(), LauncherSubActivity.class);
-                intent.putExtra("fragment", preference.getFragment());
-                startActivity(intent);
-                break;
-            default:
-                return super.onPreferenceTreeClick(preference);
-
-        }
-        return true;
+        return super.onPreferenceTreeClick(preference);
     }
 
 }

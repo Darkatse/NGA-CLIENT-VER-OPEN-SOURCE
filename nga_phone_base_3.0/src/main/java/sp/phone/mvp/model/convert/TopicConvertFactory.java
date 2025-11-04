@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import sp.phone.common.FilterKeyword;
-import sp.phone.common.FilterKeywordsManagerImpl;
+import gov.anzong.androidnga.activity.compose.filter.FilterManager;
+import gov.anzong.androidnga.activity.compose.filter.FilterKeyword;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.User;
-import sp.phone.common.UserManagerImpl;
 import sp.phone.http.bean.TopicListBean;
 import sp.phone.mvp.model.entity.SubBoard;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
@@ -79,32 +78,9 @@ public class TopicConvertFactory {
 //                }).collect(Collectors.toList())
 //               );
 
-        Iterator<ThreadPageInfo> iterator = data.getThreadPageList().iterator();
 
-        List<User> blackList = UserManagerImpl.getInstance().getBlackList();
-        List<FilterKeyword> filterKeywords = FilterKeywordsManagerImpl.getInstance().getKeywords();
+        FilterManager.INSTANCE.filterTopic(data.getThreadPageList());
 
-        while (iterator.hasNext()) {
-            ThreadPageInfo pageInfo = iterator.next();
-            boolean removed = false;
-            for (FilterKeyword keyword : filterKeywords) {
-                if (keyword.isEnabled() && pageInfo.getSubject().contains(keyword.getKeyword())) {
-                    iterator.remove();
-                    removed = true;
-                    break;
-                }
-            }
-            if (removed) {
-                continue;
-            }
-            for (User user : blackList) {
-                if (Objects.equals(pageInfo.getAuthor(), user.getNickName())) {
-                    iterator.remove();
-                    break;
-                }
-            }
-
-        }
     }
 
     private void sort(TopicListInfo listInfo) {

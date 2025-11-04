@@ -23,7 +23,6 @@ import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.common.util.ReflectUtils;
 import gov.anzong.androidnga.db.AppDatabase;
-import sp.phone.common.FilterKeywordsManagerImpl;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.common.VersionUpgradeHelper;
 import sp.phone.task.CheckInTask;
@@ -102,7 +101,6 @@ public class NgaClientApp extends Application {
     private void initCoreModule() {
         UserManagerImpl.getInstance().initialize(this);
         UserManager.INSTANCE.getActiveUser();
-        FilterKeywordsManagerImpl.getInstance().initialize(this);
         RetrofitHelper.setCookieProvider(() -> UserManagerImpl.getInstance().getCookie());
 //        // 注册crashHandler
 //        CrashHandler.getInstance().init(this);

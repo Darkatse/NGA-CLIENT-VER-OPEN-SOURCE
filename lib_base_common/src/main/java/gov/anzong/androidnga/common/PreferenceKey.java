@@ -27,9 +27,6 @@ public class PreferenceKey {
     String HANDSIDE = "HandSide";
 
     public static final String USER_LIST = "userList";
-    public static final String BLACK_LIST = "";
-    public static final String FILTER_KEYWORDS_LIST = "filter_keywords";
-
     public static final String SHOW_ICON_MODE = "showiconmode";
 
     public static final String ADJUST_SIZE = "adjust_size";
@@ -47,8 +44,6 @@ public class PreferenceKey {
     public static final String USER_ACTIVE_INDEX = "user_active_index";
 
     public static final String SORT_BY_POST = "sort_by_post";
-
-    public static final String PREF_BLACK_LIST = "pref_black_list";
 
     public static final String PREF_USER = "pref_user";
 

@@ -210,13 +210,13 @@ public class PhoneConfiguration extends PreferenceKey implements SharedPreferenc
         return mNotificationSoundEnabled;
     }
 
-    public boolean isAvatarLoadEnabled() {
+    public boolean isAvatarLoadEnabled(boolean defValue) {
         if (mAvatarLoadStrategy.equals(PreferenceKey.IMAGE_LOAD_ALWAYS)) {
             return true;
         } else if (mAvatarLoadStrategy.equals(PreferenceKey.IMAGE_LOAD_NEVER)) {
             return false;
         } else {
-            return DeviceUtils.isWifiConnected(ContextUtils.getContext());
+            return defValue;
         }
     }
 

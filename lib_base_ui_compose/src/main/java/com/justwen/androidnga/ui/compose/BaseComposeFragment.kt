@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.ScaffoldApp
+import com.justwen.androidnga.ui.compose.widget.TopAppBarData
 
 open class BaseComposeFragment : Fragment() {
 
@@ -27,6 +28,7 @@ open class BaseComposeFragment : Fragment() {
             setContent {
                 AppTheme {
                     ScaffoldApp(
+                        topAppBarData = getTopAppBarData()
                     ) {
                         Surface(
                             modifier = Modifier.fillMaxSize(),
@@ -38,6 +40,12 @@ open class BaseComposeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    open fun getTopAppBarData(): TopAppBarData {
+        val topAppBarData = TopAppBarData(requireActivity().title.toString())
+        topAppBarData.navigationIconAction = { requireActivity().finish() }
+        return topAppBarData
     }
 
     @Composable

@@ -513,7 +513,7 @@ public class StringUtils {
                 "ac20.png", "ac21.png", "ac22.png", "ac23.png", "ac24.png", "ac25.png",
                 "ac26.png", "ac27.png", "ac28.png", "ac29.png", "ac30.png", "ac31.png",
                 "ac32.png", "ac33.png", "ac34.png", "ac35.png", "ac36.png", "ac37.png",
-                "ac38.png", "ac39.png", "ac40.png", "ac41.png", "ac43.png", "ac42.png",
+                "ac38.png", "ac39.png", "ac40.png", "ac41.png", "ac42.png", "ac43.png",
                 "ac44.png"
         };
         final String newacniangofubbcode[] = {

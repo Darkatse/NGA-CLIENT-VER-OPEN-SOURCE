@@ -149,15 +149,15 @@ class SearchViewModel : ViewModel() {
 
     private fun putHistory(searchMode: Int, key: String) {
         val newKeyList = searchModel.putHistory(searchMode, key)
-        if (newKeyList != null) {
-            keyList.value = newKeyList
+        newKeyList?.let {
+            keyList.value = it
         }
     }
 
     fun deleteHistory(key: String) {
         val newKeyList = searchModel.deleteHistory(searchMode.value!!, key)
-        if (newKeyList != null) {
-            keyList.value = newKeyList
+        newKeyList?.let {
+            keyList.value = it
         }
     }
 

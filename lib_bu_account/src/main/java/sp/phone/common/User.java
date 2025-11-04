@@ -79,7 +79,7 @@ public class User implements JavaBean {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof User && mUserId.equals(getUserId());
+        return obj instanceof User && mUserId.equals(((User) obj).getUserId());
     }
 
     @NonNull
@@ -91,5 +91,9 @@ public class User implements JavaBean {
                 ", mNickName='" + mNickName + '\'' +
                 ", mAvatarUrl='" + mAvatarUrl + '\'' +
                 '}';
+    }
+
+    public String toShortString() {
+        return mUserId + '/' + mNickName;
     }
 }

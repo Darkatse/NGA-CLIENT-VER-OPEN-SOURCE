@@ -120,18 +120,7 @@ public class TopicListPresenter extends ViewModel implements LifecycleObserver {
             if (pageQueriedCounter == twentyFourPageCount) {
                 twentyFourCurPos = 0;
                 List<ThreadPageInfo> threadPageList = twentyFourList.getThreadPageList();
-                if (DeviceUtils.isGreaterEqual_7_0()) {
-                    threadPageList.removeIf(item -> (data.curTime - item.getPostDate() > 24 * 60 * 60));
-                } else {
-                    final Iterator<ThreadPageInfo> each = threadPageList.iterator();
-                    while (each.hasNext()) {
-                        ThreadPageInfo item = each.next();
-                        if (data.curTime - item.getPostDate() > 24 * 60 * 60) {
-                            each.remove();
-                        }
-                    }
-                }
-
+                threadPageList.removeIf(item -> (data.curTime - item.getPostDate() > 24 * 60 * 60));
                 if (threadPageList.size() > twentyFourTopicCount) {
                     threadPageList.subList(twentyFourTopicCount, threadPageList.size());
                 }
