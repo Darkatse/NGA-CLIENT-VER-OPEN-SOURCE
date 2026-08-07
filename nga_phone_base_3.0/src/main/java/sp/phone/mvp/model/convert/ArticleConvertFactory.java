@@ -93,14 +93,15 @@ public class ArticleConvertFactory {
         JSONObject subObj = (JSONObject) obj.get("__R");
         int rows = (Integer) obj.get("__R__ROWS");
         JSONObject userInfoMap = (JSONObject) obj.get("__U");
+        JSONObject attachGlobal = obj.getJSONObject("__GLOBAL");
         if (subObj == null) {
             return new ArrayList<>();
         }
-        return convertJsObjToList(subObj, rows, userInfoMap);
+        return convertJsObjToList(subObj, rows, userInfoMap, attachGlobal);
     }
 
 
-    private static List<ThreadRowInfo> convertJsObjToList(JSONObject rowMap, int count, JSONObject userInfoMap) {
+    private static List<ThreadRowInfo> convertJsObjToList(JSONObject rowMap, int count, JSONObject userInfoMap, JSONObject global) {
         List<ThreadRowInfo> rowList = new ArrayList<>();
         NLog.d("ArticleUtil", "convertJsObjToList");
         for (int i = 0; i < count; i++) {
@@ -112,8 +113,9 @@ public class ArticleConvertFactory {
                 continue;
             }
             ThreadRowInfo row = JSONObject.toJavaObject(rowObj, ThreadRowInfo.class);
+            row.attachmentHost = getAttachmentHost(global);
             buildRowHotReplay(row, rowObj);
-            buildRowComment(row, rowObj, userInfoMap);
+            buildRowComment(row, rowObj, userInfoMap, global);
             buildRowClientInfo(row, rowObj);
             buildRowUserInfo(row, userInfoMap);
             buildRowVote(row, rowObj);
@@ -121,6 +123,14 @@ public class ArticleConvertFactory {
             rowList.add(row);
         }
         return rowList;
+    }
+
+    private static String getAttachmentHost(JSONObject global) {
+        String data =  global.getString("_ATTACH_BASE_VIEW");
+        if (TextUtils.isEmpty(data)) {
+            return null;
+        }
+        return data.split("/")[0];
     }
 
     private static void buildRowContent(ThreadRowInfo row) {
@@ -141,6 +151,7 @@ public class ArticleConvertFactory {
 
     private static HtmlData buildHtmlData(ThreadRowInfo row) {
         HtmlData htmlData = new HtmlData(row.getContent());
+        htmlData.attachmentHost = row.attachmentHost;
         htmlData.setAlertInfo(row.getAlterinfo());
         htmlData.setDarkMode(ThemeManager.getInstance().isNightMode());
         htmlData.setInBackList(row.get_isInBlackList());
@@ -160,7 +171,7 @@ public class ArticleConvertFactory {
                 AttachmentData data = new AttachmentData();
                 data.setAttachUrl(entry.getValue().getAttachurl());
                 data.setThumb(entry.getValue().getThumb());
-                data.setAttachmentHost(HttpUtil.NGA_ATTACHMENT_HOST);
+                data.setAttachmentHost(row.attachmentHost);
                 attachments.add(data);
             }
             htmlData.setAttachmentList(attachments);
@@ -203,10 +214,10 @@ public class ArticleConvertFactory {
     }
 
     //解析贴条
-    private static void buildRowComment(ThreadRowInfo row, JSONObject rowObj, JSONObject userInfoMap) {
+    private static void buildRowComment(ThreadRowInfo row, JSONObject rowObj, JSONObject userInfoMap, JSONObject global) {
         JSONObject commObj = (JSONObject) rowObj.get("comment");
         if (commObj != null) {
-            row.setComments(convertJsObjToList(commObj, commObj.size(), userInfoMap));
+            row.setComments(convertJsObjToList(commObj, commObj.size(), userInfoMap, global));
         }
     }
 

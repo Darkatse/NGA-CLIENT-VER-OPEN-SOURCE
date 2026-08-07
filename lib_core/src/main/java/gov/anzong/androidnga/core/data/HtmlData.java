@@ -10,6 +10,8 @@ public class HtmlData implements Cloneable {
 
     public String tid;
 
+    public String attachmentHost;
+
     private boolean mInBackList;
 
     private boolean mDarkMode;

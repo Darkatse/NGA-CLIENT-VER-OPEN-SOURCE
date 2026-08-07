@@ -48,6 +48,8 @@ public class ThreadRowInfo implements JavaBean {
 
     public String mMemberGroup;
 
+    public String attachmentHost;
+
     public List<String> mImageUrlList = new ArrayList<>();
 
     public int score;

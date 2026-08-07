@@ -41,7 +41,11 @@ public class ForumImageDecoder implements IForumDecoder {
 
     @Override
     public String decode(String content, HtmlData htmlData) {
-        String replace = String.format(REPLACE_IMG_NO_HTTP, NGA_ATTACHMENT_HOST, "$1");
+        String attachmentHost = NGA_ATTACHMENT_HOST;
+        if (htmlData != null && htmlData.attachmentHost != null) {
+            attachmentHost = htmlData.attachmentHost;
+        }
+        String replace = String.format(REPLACE_IMG_NO_HTTP, attachmentHost, "$1");
         content = StringUtils.replaceAll(content, REGEX_IMG_NO_HTTP, replace);
         content = StringUtils.replaceAll(content, REGEX_IMG_WITH_HTTP, REPLACE_IMG_WITH_HTTP);
         content = StringUtils.replaceAll(content, "(http\\S+).gif.(thumb_s|medium|thumb|thumb_ss).jpg", "$1.gif");
