@@ -2,8 +2,8 @@ package sp.phone.mvp.model.convert;
 
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class ArticleConvertFactory {
             return null;
         }
         try {
-            return JSONObject.toJavaObject(subObj, ThreadPageInfo.class);
+            return subObj.toJavaObject(ThreadPageInfo.class);
         } catch (RuntimeException e) {
             NLog.e(TAG, subObj.toJSONString());
         }
@@ -112,7 +112,7 @@ public class ArticleConvertFactory {
             } else {
                 continue;
             }
-            ThreadPostBean row = JSONObject.toJavaObject(rowObj, ThreadPostBean.class);
+            ThreadPostBean row = rowObj.toJavaObject(ThreadPostBean.class);
             row.attachmentHost = getAttachmentHost(global);
             buildRowHotReplay(row, rowObj);
             buildRowComment(row, rowObj, userInfoMap, global);
