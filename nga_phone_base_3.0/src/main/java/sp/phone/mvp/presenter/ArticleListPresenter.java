@@ -155,12 +155,12 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
             mBaseView.showToast(R.string.cannot_add_to_blacklist_cause_anony);
         } else {
             UserManager um = UserManagerImpl.getInstance();
-            if (row.get_isInBlackList()) {
-                row.set_IsInBlackList(false);
+            if (row.threadPostInfo.isBlocked) {
+                row.threadPostInfo.isBlocked = false;
                 um.removeFromBlackList(String.valueOf(row.authorid));
                 mBaseView.showToast(R.string.remove_from_blacklist_success);
             } else {
-                row.set_IsInBlackList(true);
+                row.threadPostInfo.isBlocked = true;
                 um.addToBlackList(row.author, String.valueOf(row.authorid));
                 mBaseView.showToast(R.string.add_to_blacklist_success);
             }

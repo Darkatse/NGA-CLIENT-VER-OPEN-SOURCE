@@ -1,5 +1,6 @@
 package com.client.androidnga.core.data.bean
 
+import com.client.androidnga.core.data.model.ThreadPostInfo
 import gov.anzong.androidnga.common.base.JavaBean
 
 /**
@@ -48,12 +49,10 @@ class ThreadPostBean : JavaBean {
     @JvmField
     var hotReplies: List<String>? = null //热门回复
 
-    var isInBlackList: Boolean = false
-
-    var formattedHtmlData: String? = null
+    @JvmField
+    val threadPostInfo  = ThreadPostInfo()
 
     var fromClient: String? = null
-    var fromClientModel: String? = null
 
     var isMuted: Boolean = false
 
@@ -79,11 +78,4 @@ class ThreadPostBean : JavaBean {
         get() = mImageUrlList
 
 
-    fun set_IsInBlackList(isin: Boolean) {
-        this.isInBlackList = isin
-    }
-
-    fun get_isInBlackList(): Boolean {
-        return isInBlackList
-    }
 }

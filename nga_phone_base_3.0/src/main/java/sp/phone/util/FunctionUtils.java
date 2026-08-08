@@ -300,7 +300,7 @@ public class FunctionUtils {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + legend + ")";
         }
-        if (row.get_isInBlackList()) {
+        if (row.threadPostInfo.isBlocked) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + blacklistban + ")";
         }

@@ -166,7 +166,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         private void onPrepareOptionsMenu(Menu menu, ThreadPostBean row) {
             MenuItem item = menu.findItem(R.id.menu_ban_this_one);
             if (item != null) {
-                item.setTitle(row.get_isInBlackList() ? R.string.cancel_ban_thisone : R.string.ban_thisone);
+                item.setTitle(row.threadPostInfo.isBlocked ? R.string.cancel_ban_thisone : R.string.ban_thisone);
             }
 
             item = menu.findItem(R.id.menu_vote);

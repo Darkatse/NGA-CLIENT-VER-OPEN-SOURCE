@@ -20,6 +20,7 @@ import sp.phone.common.ForumConstants;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
 import com.client.androidnga.core.data.bean.ThreadAttachBean;
+import com.client.androidnga.core.data.model.ClientModel;
 import com.client.androidnga.core.data.model.ThreadInfo;
 import com.client.androidnga.core.data.bean.ThreadPostBean;
 import com.client.androidnga.core.data.model.ThreadPageInfo;
@@ -145,7 +146,7 @@ public class ArticleConvertFactory {
         List<String> imageUrls = new ArrayList<>();
         String ngaHtml = HtmlConvertFactory.convert(buildHtmlData(row), imageUrls);
         row.getImageUrls().addAll(imageUrls);
-        row.setFormattedHtmlData(ngaHtml);
+        row.threadPostInfo.formatHtml= ngaHtml;
     }
 
     private static HtmlData buildHtmlData(ThreadPostBean row) {
@@ -153,7 +154,7 @@ public class ArticleConvertFactory {
         htmlData.attachmentHost = row.attachmentHost;
         htmlData.setAlertInfo(row.alterinfo);
         htmlData.setDarkMode(ThemeManager.getInstance().isNightMode());
-        htmlData.setInBackList(row.get_isInBlackList());
+        htmlData.setInBackList(row.threadPostInfo.isBlocked);
         htmlData.setTextSize(PhoneConfiguration.getInstance().getTopicContentSize());
         htmlData.setEmotionSize(PhoneConfiguration.getInstance().getEmoticonSize());
         htmlData.setSignature(PhoneConfiguration.getInstance().isShowSignature() ? row.signature : null);
@@ -231,14 +232,18 @@ public class ArticleConvertFactory {
                 } else {
                     clientAppCode = client;
                 }
-                if (clientAppCode.equals("1") || clientAppCode.equals("7") || clientAppCode.equals("101")) {
-                    row.setFromClientModel("ios");
-                } else if (clientAppCode.equals("103") || clientAppCode.equals("9")) {
-                    row.setFromClientModel("wp");
-                } else if (!clientAppCode.equals("8") && !clientAppCode.equals("100")) {
-                    row.setFromClientModel("unknown");
+                if (clientAppCode.equals("1") || clientAppCode.equals("7") ) {
+                    row.threadPostInfo.clientModel = ClientModel.IOS;
+                } else if (clientAppCode.equals("101")) {
+                    row.threadPostInfo.clientModel = ClientModel.IOS_BROWSER;
+                } else if (clientAppCode.equals("8")) {
+                    row.threadPostInfo.clientModel = ClientModel.ANDROID;
+                } else if (clientAppCode.equals("9") || clientAppCode.equals("103")) {
+                    row.threadPostInfo.clientModel = ClientModel.WP;
+                } else if (clientAppCode.equals("100")) {
+                    row.threadPostInfo.clientModel = ClientModel.ANDROID_BROWSER;
                 } else {
-                    row.setFromClientModel("android");
+                    row.threadPostInfo.clientModel = ClientModel.UNKNOWN_BROWSER;
                 }
             }
         }
@@ -255,7 +260,7 @@ public class ArticleConvertFactory {
             return;
         }
         int uid = row.authorid;
-        row.set_IsInBlackList(UserManagerImpl.getInstance().checkBlackList(String.valueOf(uid)));
+        row.threadPostInfo.isBlocked = UserManagerImpl.getInstance().checkBlackList(String.valueOf(uid));
         String t1 = "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥";
         String t2 = "王李张刘陈杨黄吴赵周徐孙马朱胡林郭何高罗郑梁谢宋唐许邓冯韩曹曾彭萧蔡潘田董袁于余叶蒋杜苏魏程吕丁沈任姚卢傅钟姜崔谭廖范汪陆金石戴贾韦夏邱方侯邹熊孟秦白江阎薛尹段雷黎史龙陶贺顾毛郝龚邵万钱严赖覃洪武莫孔汤向常温康施文牛樊葛邢安齐易乔伍庞颜倪庄聂章鲁岳翟殷詹申欧耿关兰焦俞左柳甘祝包宁尚符舒阮柯纪梅童凌毕单季裴霍涂成苗谷盛曲翁冉骆蓝路游辛靳管柴蒙鲍华喻祁蒲房滕屈饶解牟艾尤阳时穆农司卓古吉缪简车项连芦麦褚娄窦戚岑景党宫费卜冷晏席卫米柏宗瞿桂全佟应臧闵苟邬边卞姬师和仇栾隋商刁沙荣巫寇桑郎甄丛仲虞敖巩明佘池查麻苑迟邝 ";
         if (userInfo.getString("username").length() == 39

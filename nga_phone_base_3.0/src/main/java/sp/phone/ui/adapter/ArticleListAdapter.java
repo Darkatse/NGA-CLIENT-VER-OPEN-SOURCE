@@ -33,6 +33,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
+
+import com.client.androidnga.core.data.model.ClientModel;
 import com.client.androidnga.core.data.model.ThreadInfo;
 import com.client.androidnga.core.data.bean.ThreadPostBean;
 import sp.phone.rxjava.BaseSubscriber;
@@ -50,12 +52,6 @@ import sp.phone.view.webview.LocalWebView;
  * 帖子详情列表Adapter
  */
 public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.ArticleViewHolder> {
-
-    private static final String DEVICE_TYPE_IOS = "ios";
-
-    private static final String DEVICE_TYPE_ANDROID = "android";
-
-    private static final String DEVICE_TYPE_WP = "wp";
 
     private static final int VIEW_TYPE_WEB_VIEW = 0;
 
@@ -80,105 +76,13 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         public void onClick(View v) {
 
             ThreadPostBean row = (ThreadPostBean) v.getTag();
-            String fromClient = row.getFromClient();
-            String clientModel = row.getFromClientModel();
-            String deviceInfo;
-            if (!StringUtils.isEmpty(clientModel)) {
-                String clientAppCode;
-                if (!fromClient.contains(" ")) {
-                    clientAppCode = fromClient;
-                } else {
-                    clientAppCode = fromClient.substring(0,
-                            fromClient.indexOf(' '));
-                }
-                switch (clientAppCode) {
-                    case "1":
-                        if (fromClient.length() <= 2) {
-                            deviceInfo = "发送自Life Style苹果客户端 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自Life Style苹果客户端 机型及系统:"
-                                    + fromClient.substring(2);
-                        }
-                        break;
-                    case "7":
-                        if (fromClient.length() <= 2) {
-                            deviceInfo = "发送自NGA苹果官方客户端 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自NGA苹果官方客户端 机型及系统:"
-                                    + fromClient.substring(2);
-                        }
-                        break;
-                    case "8":
-                        if (fromClient.length() <= 2) {
-                            deviceInfo = "发送自NGA安卓客户端 机型及系统:未知";
-                        } else {
-                            String fromData = fromClient.substring(2);
-                            if (fromData.startsWith("[")
-                                    && fromData.contains("](Android")) {
-                                deviceInfo = "发送自NGA安卓开源版客户端 机型及系统:"
-                                        + fromData.substring(1).replace(
-                                        "](Android", "(Android");
-                            } else {
-                                deviceInfo = "发送自NGA安卓官方客户端 机型及系统:" + fromData;
-                            }
-                        }
-                        break;
-                    case "9":
-                        if (fromClient.length() <= 2) {
-                            deviceInfo = "发送自NGA Windows Phone官方客户端 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自NGA Windows Phone官方客户端 机型及系统:"
-                                    + fromClient.substring(2);
-                        }
-                        break;
-                    case "100":
-                        if (fromClient.length() <= 4) {
-                            deviceInfo = "发送自安卓浏览器 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自安卓浏览器 机型及系统:"
-                                    + fromClient.substring(4);
-                        }
-                        break;
-                    case "101":
-                        if (fromClient.length() <= 4) {
-                            deviceInfo = "发送自苹果浏览器 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自苹果浏览器 机型及系统:"
-                                    + fromClient.substring(4);
-                        }
-                        break;
-                    case "102":
-                        if (fromClient.length() <= 4) {
-                            deviceInfo = "发送自Blackberry浏览器 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自Blackberry浏览器 机型及系统:"
-                                    + fromClient.substring(4);
-                        }
-                        break;
-                    case "103":
-                        if (fromClient.length() <= 4) {
-                            deviceInfo = "发送自Windows Phone客户端 机型及系统:未知";
-                        } else {
-                            deviceInfo = "发送自Windows Phone客户端 机型及系统:"
-                                    + fromClient.substring(4);
-                        }
-                        break;
-                    default:
-                        if (!fromClient.contains(" ")) {
-                            deviceInfo = "发送自未知浏览器 机型及系统:未知";
-                        } else {
-                            if (fromClient.length() == (fromClient.indexOf(' ') + 1)) {
-                                deviceInfo = "发送自未知浏览器 机型及系统:未知";
-                            } else {
-                                deviceInfo = "发送自未知浏览器 机型及系统:"
-                                        + fromClient.substring(fromClient
-                                        .indexOf(' ') + 1);
-                            }
-                        }
-                        break;
-                }
-                ActivityUtils.showToast(deviceInfo);
+            ClientModel clientModel = row.threadPostInfo.clientModel;
+            if (clientModel == null) {
+                return;
             }
+            String deviceInfo = "发送自" + clientModel.getModelName();
+            ActivityUtils.showToast(deviceInfo);
+
         }
     };
 
@@ -394,7 +298,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     @Override
     public int getItemViewType(int position) {
         ThreadPostBean row = mData.rowList.get(position);
-        return TextUtils.isEmpty(row.getFormattedHtmlData()) ? VIEW_TYPE_NATIVE_VIEW : VIEW_TYPE_WEB_VIEW;
+        return TextUtils.isEmpty(row.threadPostInfo.formatHtml) ? VIEW_TYPE_NATIVE_VIEW : VIEW_TYPE_WEB_VIEW;
     }
 
     @Override
@@ -467,7 +371,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     private void onBindContentView(ArticleViewHolder holder, ThreadPostBean row, int position) {
-        String html = row.getFormattedHtmlData();
+        String html = row.threadPostInfo.formatHtml;
         if (html != null) {
             if (mLocalWebViews != null) {
                 LocalWebView localWebView = mLocalWebViews[position];
@@ -495,28 +399,22 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     private void onBindDeviceType(ImageView clientBtn, ThreadPostBean row) {
-        String deviceType = row.getFromClientModel();
-
-        if (TextUtils.isEmpty(deviceType)) {
+        ClientModel clientModel = row.threadPostInfo.clientModel;
+        if (clientModel == null) {
             clientBtn.setVisibility(View.GONE);
+            clientBtn.setTag(null);
+            return;
+        } else if (clientModel == ClientModel.IOS) {
+            clientBtn.setImageResource(R.drawable.ic_apple_12dp);
+        } else if (clientModel == ClientModel.ANDROID) {
+            clientBtn.setImageResource(R.drawable.ic_android_12dp);
+        } else if (clientModel == ClientModel.WP) {
+            clientBtn.setImageResource(R.drawable.ic_windows_12dp);
         } else {
-            switch (deviceType) {
-                case DEVICE_TYPE_IOS:
-                    clientBtn.setImageResource(R.drawable.ic_apple_12dp);
-                    break;
-                case DEVICE_TYPE_WP:
-                    clientBtn.setImageResource(R.drawable.ic_windows_12dp);
-                    break;
-                case DEVICE_TYPE_ANDROID:
-                    clientBtn.setImageResource(R.drawable.ic_android_12dp);
-                    break;
-                default:
-                    clientBtn.setImageResource(R.drawable.ic_smartphone_12dp);
-                    break;
-            }
-            clientBtn.setTag(row);
-            clientBtn.setVisibility(View.VISIBLE);
+            clientBtn.setImageResource(R.drawable.ic_smartphone_12dp);
         }
+        clientBtn.setTag(row);
+        clientBtn.setVisibility(View.VISIBLE);
     }
 
     @Override
