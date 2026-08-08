@@ -25,8 +25,8 @@ import io.reactivex.annotations.NonNull;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.User;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadData;
-import sp.phone.http.bean.ThreadRowInfo;
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.bean.ThreadPostBean;
 import sp.phone.mvp.contract.ArticleListContract;
 import sp.phone.mvp.presenter.ArticleListPresenter;
 import sp.phone.mvp.viewmodel.ArticleShareViewModel;
@@ -65,10 +65,10 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     private OnTopicMenuItemClickListener mMenuItemClickListener = new OnTopicMenuItemClickListener() {
 
-        private ThreadRowInfo mThreadRowInfo;
+        private ThreadPostBean mThreadRowInfo;
 
         @Override
-        public void setThreadRowInfo(ThreadRowInfo threadRowInfo) {
+        public void setThreadRowInfo(ThreadPostBean threadRowInfo) {
             mThreadRowInfo = threadRowInfo;
         }
 
@@ -78,11 +78,11 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                 return false;
             }
 
-            ThreadRowInfo row = mThreadRowInfo;
+            ThreadPostBean row = mThreadRowInfo;
 
-            String pidStr = String.valueOf(row.getPid());
-            String tidStr = String.valueOf(row.getTid());
-            int tid = row.getTid();
+            String pidStr = String.valueOf(row.pid);
+            String tidStr = String.valueOf(row.tid);
+            int tid = row.tid;
 
             switch (item.getItemId()) {
                 case R.id.menu_edit:
@@ -94,9 +94,9 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                                 .build(ARouterConstants.ACTIVITY_POST)
                                 .withString(ParamKey.KEY_PID, pidStr)
                                 .withString(ParamKey.KEY_TID, tidStr)
-                                .withString("title", StringUtils.unEscapeHtml(row.getSubject()))
+                                .withString("title", StringUtils.unEscapeHtml(row.subject))
                                 .withString("action", "modify")
-                                .withString("prefix", StringUtils.unEscapeHtml(StringUtils.removeBrTag(row.getContent())))
+                                .withString("prefix", StringUtils.unEscapeHtml(StringUtils.removeBrTag(row.content)))
                                 .navigation(getActivity(), ActivityUtils.REQUEST_CODE_LOGIN);
                     }
                     break;
@@ -125,15 +125,15 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                             .build(ARouterConstants.ACTIVITY_TOPIC_CONTENT)
                             .withString("tab", "1")
                             .withInt(ParamKey.KEY_TID, tid)
-                            .withInt(ParamKey.KEY_AUTHOR_ID, row.getAuthorid())
+                            .withInt(ParamKey.KEY_AUTHOR_ID, row.authorid)
                             .withInt("fromreplyactivity", 1)
                             .navigation();
                     break;
                 case R.id.menu_support:
-                    mPresenter.postSupportTask(tid, row.getPid());
+                    mPresenter.postSupportTask(tid, row.pid);
                     break;
                 case R.id.menu_oppose:
-                    mPresenter.postOpposeTask(tid, row.getPid());
+                    mPresenter.postOpposeTask(tid, row.pid);
                     break;
                 case R.id.menu_favorite:
                     BookmarkTask.execute(tidStr, pidStr);
@@ -149,7 +149,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
         @Override
         public void onClick(View view) {
-            mMenuItemClickListener.setThreadRowInfo((ThreadRowInfo) view.getTag());
+            mMenuItemClickListener.setThreadRowInfo((ThreadPostBean) view.getTag());
             int menuId;
             if (mRequestParam.pid == 0) {
                 menuId = R.menu.article_list_context_menu;
@@ -158,26 +158,26 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             }
             PopupMenu popupMenu = new PopupMenu(getContext(), view);
             popupMenu.inflate(menuId);
-            onPrepareOptionsMenu(popupMenu.getMenu(), (ThreadRowInfo) view.getTag());
+            onPrepareOptionsMenu(popupMenu.getMenu(), (ThreadPostBean) view.getTag());
             popupMenu.show();
             popupMenu.setOnMenuItemClickListener(mMenuItemClickListener);
         }
 
-        private void onPrepareOptionsMenu(Menu menu, ThreadRowInfo row) {
+        private void onPrepareOptionsMenu(Menu menu, ThreadPostBean row) {
             MenuItem item = menu.findItem(R.id.menu_ban_this_one);
             if (item != null) {
                 item.setTitle(row.get_isInBlackList() ? R.string.cancel_ban_thisone : R.string.ban_thisone);
             }
 
             item = menu.findItem(R.id.menu_vote);
-            if (item != null && StringUtils.isEmpty(row.getVote())) {
+            if (item != null && StringUtils.isEmpty(row.vote)) {
                 item.setVisible(false);
             }
 
             item = menu.findItem(R.id.menu_edit);
             if (item != null) {
                 User user = UserManagerImpl.getInstance().getActiveUser();
-                if (user == null || !user.getUserId().equals(String.valueOf(row.getAuthorid()))) {
+                if (user == null || !user.getUserId().equals(String.valueOf(row.authorid))) {
                     item.setVisible(false);
                 }
             }
@@ -188,16 +188,16 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     private View.OnClickListener mSupportListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ThreadRowInfo row = ((ThreadRowInfo) view.getTag());
-            mPresenter.postSupportTask(row.getTid(), row.getPid());
+            ThreadPostBean row = ((ThreadPostBean) view.getTag());
+            mPresenter.postSupportTask(row.tid, row.pid);
         }
     };
 
     private View.OnClickListener mOpposeListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ThreadRowInfo row = ((ThreadRowInfo) view.getTag());
-            mPresenter.postOpposeTask(row.getTid(), row.getPid());
+            ThreadPostBean row = ((ThreadPostBean) view.getTag());
+            mPresenter.postOpposeTask(row.tid, row.pid);
         }
     };
 
@@ -279,19 +279,19 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     }
 
     @Override
-    public void setData(ThreadData data) {
+    public void setData(ThreadInfo data) {
         ArticleShareViewModel viewModel = getActivityViewModelProvider().get(ArticleShareViewModel.class);
         if (getActivity() != null && data != null) {
             viewModel.setReplyCount(data.get__ROWS());
         }
         if (data != null && getActivity() != null && mRequestParam.title == null) {
-            getActivity().setTitle(data.getThreadInfo().getSubject());
+            getActivity().setTitle(data.threadInfo.getSubject());
         }
 
-        if (data != null && data.getRowList() != null && !data.getRowList().isEmpty()) {
-            ThreadRowInfo rowInfo = data.getRowList().get(0);
-            if (rowInfo != null && rowInfo.getLou() == 0) {
-                viewModel.setTopicOwner(rowInfo.getAuthor());
+        if (data != null && data.rowList != null && !data.rowList.isEmpty()) {
+            ThreadPostBean rowInfo = data.rowList.get(0);
+            if (rowInfo != null && rowInfo.lou == 0) {
+                viewModel.setTopicOwner(rowInfo.author);
             }
         }
         if (mRequestParam.authorId == 0 && mRequestParam.searchPost == 0) {
@@ -340,7 +340,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     interface OnTopicMenuItemClickListener extends PopupMenu.OnMenuItemClickListener {
 
-        void setThreadRowInfo(ThreadRowInfo threadRowInfo);
+        void setThreadRowInfo(ThreadPostBean threadRowInfo);
 
     }
 

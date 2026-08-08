@@ -28,7 +28,7 @@ import com.justwen.androidnga.base.network.retrofit.RetrofitService;
 import sp.phone.mvp.contract.TopicListContract;
 import sp.phone.mvp.model.convert.ErrorConvertFactory;
 import sp.phone.mvp.model.convert.TopicConvertFactory;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.TopicListParam;
 import sp.phone.rxjava.BaseSubscriber;

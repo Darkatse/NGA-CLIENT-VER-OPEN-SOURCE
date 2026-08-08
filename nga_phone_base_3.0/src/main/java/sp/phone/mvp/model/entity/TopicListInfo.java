@@ -1,5 +1,7 @@
 package sp.phone.mvp.model.entity;
 
+import com.client.androidnga.core.data.model.ThreadPageInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 

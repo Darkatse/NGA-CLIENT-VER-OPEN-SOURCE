@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -33,19 +32,16 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.justwen.androidnga.core.data.MessageArticlePageInfo;
-
 import java.util.Objects;
 
-import gov.anzong.androidnga.BuildConfig;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
-import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadRowInfo;
+
+import com.client.androidnga.core.data.bean.ThreadPostBean;
 import sp.phone.proxy.ProxyBridge;
 import sp.phone.theme.ThemeManager;
 import sp.phone.ui.fragment.dialog.ReportDialogFragment;
@@ -92,11 +88,11 @@ public class FunctionUtils {
     }
 
 
-    public static void Create_Signature_Dialog(ThreadRowInfo row, final Context context, final View scrollview) {
+    public static void Create_Signature_Dialog(ThreadPostBean row, final Context context, final View scrollview) {
         LayoutInflater layoutInflater = ((Activity) context).getLayoutInflater();
         final View view = layoutInflater.inflate(R.layout.dialog_signature,
                 null);
-        String name = row.getAuthor();
+        String name = row.author;
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         alert.setView(view);
         alert.setTitle(name + "的签名");
@@ -147,10 +143,10 @@ public class FunctionUtils {
     }
 
     @SuppressWarnings("unused")
-    public static void createVoteDialog(ThreadRowInfo row, final Context context, final View scrollview, Toast toast) {
+    public static void createVoteDialog(ThreadPostBean row, final Context context, final View scrollview, Toast toast) {
         LayoutInflater layoutInflater = ((Activity) context).getLayoutInflater();
         final View view = layoutInflater.inflate(R.layout.dialog_vote, null);
-        String name = row.getAuthor();
+        String name = row.author;
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         alert.setView(view);
         alert.setTitle("投票/投注");
@@ -290,17 +286,17 @@ public class FunctionUtils {
     }
 
 
-    public static void handleNickName(ThreadRowInfo row, int fgColor,
+    public static void handleNickName(ThreadPostBean row, int fgColor,
                                       TextView nickNameTV, String topicOwner, Context context) {
         initStaticStrings(context);
-        String nickName = row.getAuthor();
+        String nickName = row.author;
         // int now = 0;
-        if ("-1".equals(row.getYz()))// nuked
+        if ("-1".equals(row.yz))// nuked
         {
             fgColor = nickNameTV.getResources().getColor(R.color.title_red);
             nickName += "(VIP)";
-        } else if (!StringUtils.isEmpty(row.getMuteTime())
-                && !"0".equals(row.getMuteTime()) || row.isMuted()) {
+        } else if (!StringUtils.isEmpty(row.muteTime)
+                && !"0".equals(row.muteTime) || row.isMuted()) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + legend + ")";
         }
@@ -313,7 +309,7 @@ public class FunctionUtils {
             nickName += "(匿名)";
         }
 
-        if (Objects.equals(row.getAuthor(), topicOwner)) {
+        if (Objects.equals(row.author, topicOwner)) {
             nickName += "(楼主)";
         }
 
@@ -324,13 +320,13 @@ public class FunctionUtils {
     }
 
 
-    public static String signatureToHtmlText(final ThreadRowInfo row,
+    public static String signatureToHtmlText(final ThreadPostBean row,
                                              boolean showImage, int imageQuality, final String fgColorStr,
                                              final String bgcolorStr, Context context) {
         initStaticStrings(context);
-        String ngaHtml = ForumDecoder.decode(row.getSignature(), HtmlData.create(row.getSignature(), Utils.getNGAHost()));
+        String ngaHtml = ForumDecoder.decode(row.signature, HtmlData.create(row.signature, Utils.getNGAHost()));
         if (StringUtils.isEmpty(ngaHtml)) {
-            ngaHtml = row.getAlterinfo();
+            ngaHtml = row.alterinfo;
         }
         if (StringUtils.isEmpty(ngaHtml)) {
             ngaHtml = "<font color='red'>[" + context.getString(R.string.hide)
@@ -347,11 +343,11 @@ public class FunctionUtils {
         return ngaHtml;
     }
 
-    public static String VoteToHtmlText(final ThreadRowInfo row, boolean showImage,
+    public static String VoteToHtmlText(final ThreadPostBean row, boolean showImage,
                                         int imageQuality, final String fgColorStr, final String bgcolorStr) {
-        if (StringUtils.isEmpty(row.getVote()))
+        if (StringUtils.isEmpty(row.vote))
             return "本楼没有投票/投注内容";
-        String ngaHtml = String.valueOf(row.getTid()) + ",'" + row.getVote()
+        String ngaHtml = String.valueOf(row.tid) + ",'" + row.vote
                 + "'";
         ngaHtml = "<!DOCTYPE html><html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\">"
                 + "<script type=\"text/javascript\" src=\"file:///android_asset/vote/vote.js\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/vote/vote.css\" />"
@@ -385,20 +381,20 @@ public class FunctionUtils {
     }
 
 
-    public static boolean isComment(ThreadRowInfo row) {
+    public static boolean isComment(ThreadPostBean row) {
 
-        return row.getAlterinfo() == null && row.getAttachs() == null
-                && row.getComments() == null
-                && row.getJs_escap_avatar() == null && row.getLevel() == null
-                && row.getSignature() == null;
+        return row.alterinfo == null && row.attachs == null
+                && row.comments == null
+                && row.js_escap_avatar == null && row.level == null
+                && row.signature == null;
     }
 
-    public static void handleReport(ThreadRowInfo row, int tid, FragmentManager fm) {
+    public static void handleReport(ThreadPostBean row, int tid, FragmentManager fm) {
 
         DialogFragment df = new ReportDialogFragment();
         Bundle args = new Bundle();
         args.putInt("tid", tid);
-        args.putInt("pid", row.getPid());
+        args.putInt("pid", row.pid);
         df.setArguments(args);
         df.show(fm, null);
 

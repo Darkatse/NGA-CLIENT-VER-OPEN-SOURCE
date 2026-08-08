@@ -25,7 +25,7 @@ import gov.anzong.androidnga.base.widget.DividerItemDecorationEx;
 import gov.anzong.androidnga.common.ui.dialog.ConfirmDialog;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.TopicHistoryManager;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;

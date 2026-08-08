@@ -17,8 +17,8 @@ import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.common.UserManager;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadData;
-import sp.phone.http.bean.ThreadRowInfo;
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.bean.ThreadPostBean;
 import sp.phone.mvp.contract.ArticleListContract;
 import sp.phone.mvp.model.ArticleListModel;
 import sp.phone.param.ArticleListParam;
@@ -38,13 +38,13 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
     private LikeTask mLikeTask;
 
-    private ThreadData mThreadData;
+    private ThreadInfo mThreadData;
 
     private ArticleListParam mRequestParam;
 
     private final Map<String, String> mHeaderMap = new ArrayMap<>();
 
-    private class ArticleCallback implements OnHttpCallBack<ThreadData> {
+    private class ArticleCallback implements OnHttpCallBack<ThreadInfo> {
         @Override
         public void onError(String text) {
             if (mBaseView != null) {
@@ -63,7 +63,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         }
 
         @Override
-        public void onSuccess(ThreadData data) {
+        public void onSuccess(ThreadInfo data) {
             if (mBaseView != null) {
                 mThreadData = data;
                 mBaseView.setRefreshing(false);
@@ -90,9 +90,9 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         }
     }
 
-    private final OnHttpCallBack<ThreadData> mRetryCallback = new RetryCallback();
+    private final OnHttpCallBack<ThreadInfo> mRetryCallback = new RetryCallback();
 
-    private final OnHttpCallBack<ThreadData> mDataCallBack = new ArticleCallback();
+    private final OnHttpCallBack<ThreadInfo> mDataCallBack = new ArticleCallback();
 
     @Override
     protected ArticleListModel onCreateModel() {
@@ -150,40 +150,40 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     @Override
-    public void banThisSB(ThreadRowInfo row) {
+    public void banThisSB(ThreadPostBean row) {
         if (row.getISANONYMOUS()) {
             mBaseView.showToast(R.string.cannot_add_to_blacklist_cause_anony);
         } else {
             UserManager um = UserManagerImpl.getInstance();
             if (row.get_isInBlackList()) {
                 row.set_IsInBlackList(false);
-                um.removeFromBlackList(String.valueOf(row.getAuthorid()));
+                um.removeFromBlackList(String.valueOf(row.authorid));
                 mBaseView.showToast(R.string.remove_from_blacklist_success);
             } else {
                 row.set_IsInBlackList(true);
-                um.addToBlackList(row.getAuthor(), String.valueOf(row.getAuthorid()));
+                um.addToBlackList(row.author, String.valueOf(row.authorid));
                 mBaseView.showToast(R.string.add_to_blacklist_success);
             }
         }
     }
 
     @Override
-    public void postComment(ArticleListParam param, ThreadRowInfo row) {
+    public void postComment(ArticleListParam param, ThreadPostBean row) {
         final String quoteRegex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
         final String replayRegex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
         StringBuilder postPrefix = new StringBuilder();
-        String content = row.getContent()
+        String content = row.content
                 .replaceAll(quoteRegex, "")
                 .replaceAll(replayRegex, "");
-        final String postTime = row.getPostdate();
+        final String postTime = row.postdate;
         content = FunctionUtils.checkContent(content);
         content = StringUtils.unEscapeHtml(content);
-        final String name = row.getAuthor();
-        final String uid = String.valueOf(row.getAuthorid());
+        final String name = row.author;
+        final String uid = String.valueOf(row.authorid);
         String tidStr = String.valueOf(param.tid);
-        if (row.getPid() != 0) {
+        if (row.pid != 0) {
             postPrefix.append("[quote][pid=")
-                    .append(row.getPid())
+                    .append(row.pid)
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
@@ -193,7 +193,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
                         .append("]")
                         .append(name)
                         .append("[/uid][color=gray](")
-                        .append(row.getLou())
+                        .append(row.lou)
                         .append("楼)[/color] (");
             } else {
                 postPrefix.append("[/pid] [b]Post by [uid=")
@@ -209,8 +209,8 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("pid", row.getPid());
-        bundle.putInt("fid", row.getFid());
+        bundle.putInt("pid", row.pid);
+        bundle.putInt("fid", row.fid);
         bundle.putInt("tid", param.tid);
 
         String prefix = StringUtils.removeBrTag(postPrefix.toString());
@@ -237,24 +237,24 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     @Override
-    public void quote(ArticleListParam param, ThreadRowInfo row) {
+    public void quote(ArticleListParam param, ThreadPostBean row) {
         final String quoteRegex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
         final String replayRegex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
         StringBuilder postPrefix = new StringBuilder();
-        String content = row.getContent()
+        String content = row.content
                 .replaceAll(quoteRegex, "")
                 .replaceAll(replayRegex, "");
-        final String postTime = row.getPostdate();
+        final String postTime = row.postdate;
         String mention = null;
-        final String name = row.getAuthor();
-        final String uid = String.valueOf(row.getAuthorid());
+        final String name = row.author;
+        final String uid = String.valueOf(row.authorid);
         content = FunctionUtils.checkContent(content);
         content = StringUtils.unEscapeHtml(content);
         String tidStr = String.valueOf(param.tid);
-        if (row.getPid() != 0) {
+        if (row.pid != 0) {
             mention = name;
             postPrefix.append("[quote][pid=")
-                    .append(row.getPid())
+                    .append(row.pid)
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
@@ -264,7 +264,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
                         .append("]")
                         .append(name)
                         .append("[/uid][color=gray](")
-                        .append(row.getLou())
+                        .append(row.lou)
                         .append("楼)[/color] (");
             } else {
                 postPrefix.append("[/pid] [b]Post by [uid=")

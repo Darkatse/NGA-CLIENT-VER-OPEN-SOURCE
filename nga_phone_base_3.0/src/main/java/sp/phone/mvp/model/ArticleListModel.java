@@ -20,8 +20,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadData;
+
+import com.client.androidnga.core.data.model.ThreadInfo;
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwen.androidnga.base.network.retrofit.RetrofitService;
 import sp.phone.mvp.contract.ArticleListContract;
@@ -68,22 +68,22 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
     }
 
     @Override
-    public void loadPage(ArticleListParam param, final OnHttpCallBack<ThreadData> callBack) {
+    public void loadPage(ArticleListParam param, final OnHttpCallBack<ThreadInfo> callBack) {
         loadPage(param, null, callBack);
     }
 
     @Override
-    public void loadPage(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadData> callBack) {
+    public void loadPage(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadInfo> callBack) {
         String url = getUrl(param);
         mService.get(url, header)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())
                 .compose(getLifecycleProvider().<String>bindUntilEvent(FragmentEvent.DETACH))
-                .map(new Function<String, ThreadData>() {
+                .map(new Function<String, ThreadInfo>() {
                     @Override
-                    public ThreadData apply(@NonNull String s) throws Exception {
+                    public ThreadInfo apply(@NonNull String s) throws Exception {
                         long time = System.currentTimeMillis();
-                        ThreadData data = ArticleConvertFactory.getArticleInfo(s);
+                        ThreadInfo data = ArticleConvertFactory.getArticleInfo(s);
                         NLog.e(TAG, "time = " + (System.currentTimeMillis() - time));
                         if (data == null) {
                             String errorMsg = ErrorConvertFactory.getErrorMessage(s);
@@ -98,11 +98,11 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(getLifecycleProvider().<ThreadData>bindUntilEvent(FragmentEvent.DETACH))
-                .subscribe(new BaseSubscriber<ThreadData>() {
+                .compose(getLifecycleProvider().<ThreadInfo>bindUntilEvent(FragmentEvent.DETACH))
+                .subscribe(new BaseSubscriber<ThreadInfo>() {
 
                     @Override
-                    public void onNext(@NonNull ThreadData threadData) {
+                    public void onNext(@NonNull ThreadInfo threadData) {
                         callBack.onSuccess(threadData);
                     }
 
@@ -136,13 +136,13 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
     }
 
     @Override
-    public void loadCachePage(ArticleListParam param, OnHttpCallBack<ThreadData> callBack) {
-        Observable.create((ObservableOnSubscribe<ThreadData>) emitter -> {
+    public void loadCachePage(ArticleListParam param, OnHttpCallBack<ThreadInfo> callBack) {
+        Observable.create((ObservableOnSubscribe<ThreadInfo>) emitter -> {
             String cachePath = ContextUtils.getContext().getFilesDir().getAbsolutePath()
                     + "/cache/" + param.tid + "/" + param.page + ".json";
             File cacheFile = new File(cachePath);
             String rawData = FileUtils.readFileToString(cacheFile);
-            ThreadData threadData = ArticleConvertFactory.getArticleInfo(rawData);
+            ThreadInfo threadData = ArticleConvertFactory.getArticleInfo(rawData);
             if (threadData != null) {
                 emitter.onNext(threadData);
             } else {
@@ -150,9 +150,9 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
             }
             emitter.onComplete();
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BaseSubscriber<ThreadData>() {
+                .subscribe(new BaseSubscriber<ThreadInfo>() {
                     @Override
-                    public void onNext(ThreadData threadData) {
+                    public void onNext(ThreadInfo threadData) {
                         callBack.onSuccess(threadData);
                     }
 

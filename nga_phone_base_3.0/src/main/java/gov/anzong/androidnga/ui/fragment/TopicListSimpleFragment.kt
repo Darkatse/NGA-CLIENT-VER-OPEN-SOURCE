@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import gov.anzong.androidnga.R
-import sp.phone.mvp.model.entity.ThreadPageInfo
+import com.client.androidnga.core.data.model.ThreadPageInfo
 import sp.phone.ui.adapter.BaseAppendableAdapter
 import sp.phone.ui.adapter.ReplyListAdapter
 import sp.phone.util.StringUtils

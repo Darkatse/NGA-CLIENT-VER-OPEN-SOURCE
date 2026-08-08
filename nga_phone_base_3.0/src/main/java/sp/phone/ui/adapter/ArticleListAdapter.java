@@ -33,8 +33,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadData;
-import sp.phone.http.bean.ThreadRowInfo;
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.bean.ThreadPostBean;
 import sp.phone.rxjava.BaseSubscriber;
 import sp.phone.rxjava.RxUtils;
 import sp.phone.theme.ThemeManager;
@@ -65,7 +65,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private FragmentManager mFragmentManager;
 
-    private ThreadData mData;
+    private ThreadInfo mData;
 
     private LayoutInflater mLayoutInflater;
 
@@ -79,7 +79,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         @Override
         public void onClick(View v) {
 
-            ThreadRowInfo row = (ThreadRowInfo) v.getTag();
+            ThreadPostBean row = (ThreadPostBean) v.getTag();
             String fromClient = row.getFromClient();
             String clientModel = row.getFromClientModel();
             String deviceInfo;
@@ -184,27 +184,27 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private View.OnClickListener mOnReplyClickListener = new View.OnClickListener() {
 
-        private Intent getReplyIntent(ThreadRowInfo row) {
+        private Intent getReplyIntent(ThreadPostBean row) {
             Intent intent = new Intent();
             StringBuilder postPrefix = new StringBuilder();
             String mention = null;
 
             final String quote_regex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
             final String replay_regex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
-            String content = row.getContent();
-            final String name = row.getAuthor();
-            final String uid = String.valueOf(row.getAuthorid());
-            int page = (row.getLou() + 20) / 20;// 以楼数计算page
+            String content = row.content;
+            final String name = row.author;
+            final String uid = String.valueOf(row.authorid);
+            int page = (row.lou + 20) / 20;// 以楼数计算page
             content = content.replaceAll(quote_regex, "");
             content = content.replaceAll(replay_regex, "");
-            final String postTime = row.getPostdate();
-            final String tidStr = String.valueOf(row.getTid());
+            final String postTime = row.postdate;
+            final String tidStr = String.valueOf(row.tid);
             content = FunctionUtils.checkContent(content);
             content = StringUtils.unEscapeHtml(content);
-            if (row.getPid() != 0 || row.getLou() == 0) {
+            if (row.pid != 0 || row.lou == 0) {
                 mention = name;
                 postPrefix.append("[quote][pid=");
-                postPrefix.append(row.getPid());
+                postPrefix.append(row.pid);
                 postPrefix.append(',');
                 postPrefix.append(tidStr);
                 postPrefix.append(",");
@@ -218,7 +218,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                     postPrefix.append("]");
                     postPrefix.append(name);
                     postPrefix.append("[/uid][color=gray](");
-                    postPrefix.append(row.getLou());
+                    postPrefix.append(row.lou);
                     postPrefix.append("楼)[/color] (");
                 } else {
                     postPrefix.append("[/pid] [b]Post by [uid=");
@@ -252,7 +252,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         @Override
         public void onClick(View view) {
 
-            ThreadRowInfo row = (ThreadRowInfo) view.getTag();
+            ThreadPostBean row = (ThreadPostBean) view.getTag();
 
             Observable.create((ObservableOnSubscribe<Intent>) emitter -> {
                 emitter.onNext(getReplyIntent(row));
@@ -276,15 +276,15 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     private View.OnClickListener mOnProfileClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ThreadRowInfo row = (ThreadRowInfo) view.getTag();
+            ThreadPostBean row = (ThreadPostBean) view.getTag();
 
             if (row.getISANONYMOUS()) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
-            } else if (row.getAuthor() != null){
+            } else if (row.author != null){
                 ARouter.getInstance()
                         .build(ARouterConstants.ACTIVITY_PROFILE)
                         .withString("mode", "uid")
-                        .withString("uid", String.valueOf(row.getAuthorid()))
+                        .withString("uid", String.valueOf(row.authorid))
                         .navigation();
             }
         }
@@ -293,13 +293,13 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     private View.OnClickListener mOnAvatarClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ThreadRowInfo row = (ThreadRowInfo) view.getTag();
+            ThreadPostBean row = (ThreadPostBean) view.getTag();
             if (row.getISANONYMOUS()) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
             } else {
                 Bundle bundle = new Bundle();
-                bundle.putString("name", row.getAuthor());
-                bundle.putString("url", FunctionUtils.parseAvatarUrl(row.getJs_escap_avatar()));
+                bundle.putString("name", row.author);
+                bundle.putString("url", FunctionUtils.parseAvatarUrl(row.js_escap_avatar));
                 BaseDialogFragment.show(mFragmentManager, bundle, AvatarDialogFragment.class);
                 //FunctionUtils.Create_Avatar_Dialog(row, view.getContext(), null);
             }
@@ -375,7 +375,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         mTopicOwner = topicOwner;
     }
 
-    public void setData(ThreadData data) {
+    public void setData(ThreadInfo data) {
         mData = data;
     }
 
@@ -393,7 +393,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        ThreadRowInfo row = mData.getRowList().get(position);
+        ThreadPostBean row = mData.rowList.get(position);
         return TextUtils.isEmpty(row.getFormattedHtmlData()) ? VIEW_TYPE_NATIVE_VIEW : VIEW_TYPE_WEB_VIEW;
     }
 
@@ -425,7 +425,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ArticleViewHolder holder, final int position) {
 
-        final ThreadRowInfo row = mData.getRowList().get(position);
+        final ThreadPostBean row = mData.rowList.get(position);
 
         if (row == null) {
             return;
@@ -449,9 +449,9 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         int fgColor = mThemeManager.getAccentColor(mContext);
         FunctionUtils.handleNickName(row, fgColor, holder.nickNameTV, mTopicOwner, mContext);
 
-        holder.floorTv.setText(MessageFormat.format("[{0} 楼]", String.valueOf(row.getLou())));
-        holder.postTimeTv.setText(row.getPostdate());
-        holder.scoreTv.setText(MessageFormat.format("{0}", row.getScore()));
+        holder.floorTv.setText(MessageFormat.format("[{0} 楼]", String.valueOf(row.lou)));
+        holder.postTimeTv.setText(row.postdate);
+        holder.scoreTv.setText(MessageFormat.format("{0}", row.score));
 
         holder.detailTv.setText(String.format("级别：%s   威望：%s   发帖：%s", row.getMemberGroup(), row.getReputation(), row.getPostCount()));
 
@@ -466,7 +466,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         return localWebView;
     }
 
-    private void onBindContentView(ArticleViewHolder holder, ThreadRowInfo row, int position) {
+    private void onBindContentView(ArticleViewHolder holder, ThreadPostBean row, int position) {
         String html = row.getFormattedHtmlData();
         if (html != null) {
             if (mLocalWebViews != null) {
@@ -490,11 +490,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             holder.contentTV.getWebViewClientEx().setImgUrls(row.getImageUrls());
             holder.contentTV.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
         } else {
-            holder.contentTextView.setText(row.getContent());
+            holder.contentTextView.setText(row.content);
         }
     }
 
-    private void onBindDeviceType(ImageView clientBtn, ThreadRowInfo row) {
+    private void onBindDeviceType(ImageView clientBtn, ThreadPostBean row) {
         String deviceType = row.getFromClientModel();
 
         if (TextUtils.isEmpty(deviceType)) {
@@ -526,11 +526,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     @Override
     public int getItemCount() {
-        return mData == null ? 0 : mData.getRowNum();
+        return mData == null ? 0 : mData.rowNum;
     }
 
-    private void onBindAvatarView(ImageView avatarIv, ThreadRowInfo row) {
-        final String avatarUrl = FunctionUtils.parseAvatarUrl(row.getJs_escap_avatar());
+    private void onBindAvatarView(ImageView avatarIv, ThreadPostBean row) {
+        final String avatarUrl = FunctionUtils.parseAvatarUrl(row.js_escap_avatar);
         final boolean downImg = PhoneConfiguration.getInstance().isAvatarLoadEnabled(mWifiConnected);
 
         ImageUtils.loadRoundCornerAvatar(avatarIv, avatarUrl, !downImg);

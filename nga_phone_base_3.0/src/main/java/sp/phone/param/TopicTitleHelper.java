@@ -15,7 +15,7 @@ import java.util.Locale;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import sp.phone.common.ApiConstants;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.util.StringUtils;
 
 public class TopicTitleHelper {

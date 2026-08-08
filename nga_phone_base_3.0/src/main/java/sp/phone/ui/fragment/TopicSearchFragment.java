@@ -28,7 +28,7 @@ import gov.anzong.androidnga.base.widget.DividerItemDecorationEx;
 import sp.phone.common.ApiConstants;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.TopicHistoryManager;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.mvp.presenter.TopicListPresenter;
 import sp.phone.param.ArticleListParam;

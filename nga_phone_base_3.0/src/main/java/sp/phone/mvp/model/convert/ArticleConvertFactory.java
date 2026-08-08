@@ -19,13 +19,12 @@ import gov.anzong.androidnga.core.data.HtmlData;
 import sp.phone.common.ForumConstants;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.Attachment;
-import sp.phone.http.bean.ThreadData;
-import sp.phone.http.bean.ThreadRowInfo;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.bean.ThreadAttachBean;
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.bean.ThreadPostBean;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.theme.ThemeManager;
 import sp.phone.util.FunctionUtils;
-import sp.phone.util.HttpUtil;
 import sp.phone.util.StringUtils;
 
 /**
@@ -36,12 +35,12 @@ public class ArticleConvertFactory {
 
     private static final String TAG = ArticleConvertFactory.class.getSimpleName();
 
-    public static ThreadData getArticleInfo(String js) {
+    public static ThreadInfo getArticleInfo(String js) {
         return parseJsonThreadPage(js);
     }
 
-    private static ThreadData parseJsonThreadPage(String js) {
-        ThreadData data = null;
+    private static ThreadInfo parseJsonThreadPage(String js) {
+        ThreadInfo data = null;
         try {
             if (js.isEmpty()) {
                 return null;
@@ -63,12 +62,12 @@ public class ArticleConvertFactory {
                 return null;
             }
             int allRows = (Integer) obj.get("__ROWS");
-            data = new ThreadData();
+            data = new ThreadInfo();
             data.setRawData(js);
-            data.setThreadInfo(buildThreadPageInfo(obj));
-            data.setRowList(buildThreadRowList(obj));
+            data.threadInfo = buildThreadPageInfo(obj);
+            data.rowList = buildThreadRowList(obj);
             data.set__ROWS(allRows);
-            data.setRowNum(data.getRowList().size());
+            data.rowNum = data.rowList.size();
         } catch (Exception e) {
             NLog.e(TAG, "can not parse :\n" + js);
             Logger.d(e);
@@ -89,7 +88,7 @@ public class ArticleConvertFactory {
         return null;
     }
 
-    private static List<ThreadRowInfo> buildThreadRowList(JSONObject obj) {
+    private static List<ThreadPostBean> buildThreadRowList(JSONObject obj) {
         JSONObject subObj = (JSONObject) obj.get("__R");
         int rows = (Integer) obj.get("__R__ROWS");
         JSONObject userInfoMap = (JSONObject) obj.get("__U");
@@ -101,8 +100,8 @@ public class ArticleConvertFactory {
     }
 
 
-    private static List<ThreadRowInfo> convertJsObjToList(JSONObject rowMap, int count, JSONObject userInfoMap, JSONObject global) {
-        List<ThreadRowInfo> rowList = new ArrayList<>();
+    private static List<ThreadPostBean> convertJsObjToList(JSONObject rowMap, int count, JSONObject userInfoMap, JSONObject global) {
+        List<ThreadPostBean> rowList = new ArrayList<>();
         NLog.d("ArticleUtil", "convertJsObjToList");
         for (int i = 0; i < count; i++) {
             Object obj = rowMap.get(String.valueOf(i));
@@ -112,7 +111,7 @@ public class ArticleConvertFactory {
             } else {
                 continue;
             }
-            ThreadRowInfo row = JSONObject.toJavaObject(rowObj, ThreadRowInfo.class);
+            ThreadPostBean row = JSONObject.toJavaObject(rowObj, ThreadPostBean.class);
             row.attachmentHost = getAttachmentHost(global);
             buildRowHotReplay(row, rowObj);
             buildRowComment(row, rowObj, userInfoMap, global);
@@ -133,15 +132,15 @@ public class ArticleConvertFactory {
         return data.split("/")[0];
     }
 
-    private static void buildRowContent(ThreadRowInfo row) {
-        if (row.getContent() == null) {
-            row.setContent(row.getSubject());
-            row.setSubject(null);
+    private static void buildRowContent(ThreadPostBean row) {
+        if (row.content == null) {
+            row.content = row.subject;
+            row.subject = null;
         }
         if (!StringUtils.isEmpty(row.getFromClient())
                 && row.getFromClient().startsWith("103 ")
-                && !StringUtils.isEmpty(row.getContent())) {
-            row.setContent(StringUtils.unescape(row.getContent()));
+                && !StringUtils.isEmpty(row.content)) {
+            row.content = StringUtils.unescape(row.content);
         }
         List<String> imageUrls = new ArrayList<>();
         String ngaHtml = HtmlConvertFactory.convert(buildHtmlData(row), imageUrls);
@@ -149,42 +148,42 @@ public class ArticleConvertFactory {
         row.setFormattedHtmlData(ngaHtml);
     }
 
-    private static HtmlData buildHtmlData(ThreadRowInfo row) {
-        HtmlData htmlData = new HtmlData(row.getContent());
+    private static HtmlData buildHtmlData(ThreadPostBean row) {
+        HtmlData htmlData = new HtmlData(row.content);
         htmlData.attachmentHost = row.attachmentHost;
-        htmlData.setAlertInfo(row.getAlterinfo());
+        htmlData.setAlertInfo(row.alterinfo);
         htmlData.setDarkMode(ThemeManager.getInstance().isNightMode());
         htmlData.setInBackList(row.get_isInBlackList());
         htmlData.setTextSize(PhoneConfiguration.getInstance().getTopicContentSize());
         htmlData.setEmotionSize(PhoneConfiguration.getInstance().getEmoticonSize());
-        htmlData.setSignature(PhoneConfiguration.getInstance().isShowSignature() ? row.getSignature() : null);
-        htmlData.setVote(row.getVote());
-        htmlData.setSubject(row.getSubject());
+        htmlData.setSignature(PhoneConfiguration.getInstance().isShowSignature() ? row.signature : null);
+        htmlData.setVote(row.vote);
+        htmlData.setSubject(row.subject);
         htmlData.setShowImage(PhoneConfiguration.getInstance().isImageLoadEnabled());
         htmlData.setNGAHost(Utils.getNGAHost());
         htmlData.pid = String.valueOf(row.pid);
         htmlData.tid = String.valueOf(row.tid);
-        htmlData.uid = String.valueOf(row.getAuthorid());
-        if (row.getAttachs() != null) {
+        htmlData.uid = String.valueOf(row.authorid);
+        if (row.attachs != null) {
             List<AttachmentData> attachments = new ArrayList<>();
-            for (Map.Entry<String, Attachment> entry : row.getAttachs().entrySet()) {
+            for (Map.Entry<String, ThreadAttachBean> entry : row.attachs.entrySet()) {
                 AttachmentData data = new AttachmentData();
-                data.setAttachUrl(entry.getValue().getAttachurl());
-                data.setThumb(entry.getValue().getThumb());
+                data.setAttachUrl(entry.getValue().attachurl);
+                data.setThumb(entry.getValue().thumb);
                 data.setAttachmentHost(row.attachmentHost);
                 attachments.add(data);
             }
             htmlData.setAttachmentList(attachments);
         }
 
-        if (row.getComments() != null) {
+        if (row.comments != null) {
             List<CommentData> comments = new ArrayList<>();
-            for (ThreadRowInfo value : row.getComments()) {
+            for (ThreadPostBean value : row.comments) {
                 CommentData comment = new CommentData();
-                comment.setAuthor(value.getAuthor());
-                comment.setContent(value.getContent());
-                comment.setPostTime(value.getPostdate());
-                comment.setAvatarUrl(FunctionUtils.parseAvatarUrl(value.getJs_escap_avatar()));
+                comment.setAuthor(value.author);
+                comment.setContent(value.content);
+                comment.setPostTime(value.postdate);
+                comment.setAvatarUrl(FunctionUtils.parseAvatarUrl(value.js_escap_avatar));
                 comments.add(comment);
             }
             htmlData.setCommentList(comments);
@@ -192,15 +191,15 @@ public class ArticleConvertFactory {
         return htmlData;
     }
 
-    private static void buildRowVote(ThreadRowInfo row, JSONObject rowObj) {
+    private static void buildRowVote(ThreadPostBean row, JSONObject rowObj) {
         String vote = rowObj.getString("vote");
         if (!StringUtils.isEmpty(vote)) {
-            row.setVote(vote);
+            row.vote = vote;
         }
     }
 
     //热门回复
-    private static void buildRowHotReplay(ThreadRowInfo row, JSONObject rowObj) {
+    private static void buildRowHotReplay(ThreadPostBean row, JSONObject rowObj) {
         String hotObj = rowObj.getString("17");
         if (hotObj != null) {
             row.hotReplies = new ArrayList<>();
@@ -214,14 +213,14 @@ public class ArticleConvertFactory {
     }
 
     //解析贴条
-    private static void buildRowComment(ThreadRowInfo row, JSONObject rowObj, JSONObject userInfoMap, JSONObject global) {
+    private static void buildRowComment(ThreadPostBean row, JSONObject rowObj, JSONObject userInfoMap, JSONObject global) {
         JSONObject commObj = (JSONObject) rowObj.get("comment");
         if (commObj != null) {
-            row.setComments(convertJsObjToList(commObj, commObj.size(), userInfoMap, global));
+            row.comments = convertJsObjToList(commObj, commObj.size(), userInfoMap, global);
         }
     }
 
-    private static void buildRowClientInfo(ThreadRowInfo row, JSONObject rowObj) {
+    private static void buildRowClientInfo(ThreadPostBean row, JSONObject rowObj) {
         String client = rowObj.getString("from_client");
         if (!StringUtils.isEmpty(client)) {
             row.setFromClient(client);
@@ -245,18 +244,17 @@ public class ArticleConvertFactory {
         }
     }
 
-    private static void buildRowUserInfo(ThreadRowInfo row, JSONObject userInfoMap) {
-        if (row.getAuthorid() == 0) {
+    private static void buildRowUserInfo(ThreadPostBean row, JSONObject userInfoMap) {
+        if (row.authorid == 0) {
             return;
         }
-        JSONObject userInfo = (JSONObject) userInfoMap.get(String.valueOf(row
-                .getAuthorid()));
+        JSONObject userInfo = (JSONObject) userInfoMap.get(String.valueOf(row.authorid));
         JSONObject groupObj = userInfoMap.getJSONObject("__GROUPS");
 
         if (userInfo == null) {
             return;
         }
-        int uid = row.getAuthorid();
+        int uid = row.authorid;
         row.set_IsInBlackList(UserManagerImpl.getInstance().checkBlackList(String.valueOf(uid)));
         String t1 = "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥";
         String t2 = "王李张刘陈杨黄吴赵周徐孙马朱胡林郭何高罗郑梁谢宋唐许邓冯韩曹曾彭萧蔡潘田董袁于余叶蒋杜苏魏程吕丁沈任姚卢傅钟姜崔谭廖范汪陆金石戴贾韦夏邱方侯邹熊孟秦白江阎薛尹段雷黎史龙陶贺顾毛郝龚邵万钱严赖覃洪武莫孔汤向常温康施文牛樊葛邢安齐易乔伍庞颜倪庄聂章鲁岳翟殷詹申欧耿关兰焦俞左柳甘祝包宁尚符舒阮柯纪梅童凌毕单季裴霍涂成苗谷盛曲翁冉骆蓝路游辛靳管柴蒙鲍华喻祁蒲房滕屈饶解牟艾尤阳时穆农司卓古吉缪简车项连芦麦褚娄窦戚岑景党宫费卜冷晏席卫米柏宗瞿桂全佟应臧闵苟邬边卞姬师和仇栾隋商刁沙荣巫寇桑郎甄丛仲虞敖巩明佘池查麻苑迟邝 ";
@@ -276,20 +274,20 @@ public class ArticleConvertFactory {
                 }
                 i += 2;
             }
-            row.setAuthor(builder.toString());
+            row.author = builder.toString();
             row.setISANONYMOUS(true);
         } else {
-            row.setAuthor(userInfo.getString("username"));
+            row.author = userInfo.getString("username");
         }
-        row.setJs_escap_avatar(userInfo.getString("avatar"));
-        row.setYz(userInfo.getString("yz"));
-        row.setMuteTime(userInfo.getString("mute_time"));
+        row.js_escap_avatar = userInfo.getString("avatar");
+        row.yz = userInfo.getString("yz");
+        row.muteTime = userInfo.getString("mute_time");
         try {
-            row.setAurvrc(Integer.valueOf(userInfo.getString("rvrc")));
+            row.aurvrc = Integer.valueOf(userInfo.getString("rvrc"));
         } catch (Exception e) {
-            row.setAurvrc(0);
+            row.aurvrc = 0;
         }
-        row.setSignature(userInfo.getString("signature"));
+        row.signature = userInfo.getString("signature");
 
         try {
             row.setPostCount(userInfo.getString("postnum"));

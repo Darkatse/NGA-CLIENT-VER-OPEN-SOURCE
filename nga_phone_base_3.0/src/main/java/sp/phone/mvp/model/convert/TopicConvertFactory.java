@@ -7,18 +7,15 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import gov.anzong.androidnga.activity.compose.filter.FilterManager;
-import gov.anzong.androidnga.activity.compose.filter.FilterKeyword;
 import sp.phone.common.PhoneConfiguration;
-import sp.phone.common.User;
 import sp.phone.http.bean.TopicListBean;
 import sp.phone.mvp.model.entity.SubBoard;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import gov.anzong.androidnga.common.util.ForumUtils;
 import gov.anzong.androidnga.common.util.NLog;
