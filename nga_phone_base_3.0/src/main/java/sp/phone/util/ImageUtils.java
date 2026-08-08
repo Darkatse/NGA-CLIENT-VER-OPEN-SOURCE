@@ -97,60 +97,6 @@ public class ImageUtils {
 
     }
 
-    /**
-     * @param drawable  source Drawable
-     * @param bookWidth
-     * @return
-     */
-    public static Bitmap zoomImageByWidth(Drawable drawable, int bookWidth, boolean isDIP) {
-        if (drawable == null)
-            return null;
-
-		/*int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
-
-
-
-		int newWidth = width;
-		int newHeight = height;
-
-		//if (width > bookWidth) {
-			newWidth = bookWidth;
-			newHeight = (height * newWidth) / width;
-		//}
-
-		float scaleWidth = ((float) newWidth) / width;
-		float scaleHeight = ((float) newHeight) / height;
-
-		Matrix matrix = new Matrix();
-		matrix.postScale(scaleWidth, scaleHeight);*/
-
-
-        Bitmap origBmp = drawableToBitmap(drawable);
-        Bitmap newbmp = zoomImageByWidth(origBmp, bookWidth, isDIP);
-        if (origBmp != newbmp)
-            origBmp.recycle();
-        return newbmp;
-    }
-
-    /**
-     * convert Drawable to Bitmap
-     *
-     * @param drawable
-     * @return
-     */
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-        int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
-        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-                : Bitmap.Config.RGB_565;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, config);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, width, height);
-        drawable.draw(canvas);
-        return bitmap;
-    }
-
     public static String newImage(String oldImage, String userId) {
         String extension = FilenameUtils.getExtension(oldImage);
         String path = FilenameUtils.getPath(oldImage);
@@ -173,53 +119,6 @@ public class ImageUtils {
             newName = HttpUtil.PATH_AVATAR + "/" + userId + ".jpg";
         }
         return newName;
-    }
-
-    public static InputStream getCacheStream(String userId, String extension) {
-
-        InputStream is = null;
-        try {
-
-            if (zf != null) {
-                ZipEntry entry = zf.getEntry("avatarImage/" + userId + "."
-                        + extension);
-                if (entry != null) {
-                    is = zf.getInputStream(entry);
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return is;
-
-    }
-
-    public static String getImageType(String uri) {
-
-        String extension = FilenameUtils.getExtension(uri);
-        if (extension.length() > 3 && extension.indexOf("?") == 3) {
-            extension = extension.substring(0, 3);
-        }
-        if (extension.length() == 3) {
-            return extension;
-        } else {
-            return null;
-        }
-    }
-
-    static public String getImageName(String uri) {
-        if (StringUtils.isEmpty(uri))
-            return null;
-        String ret = FilenameUtils.getName(uri);
-        if (StringUtils.isEmpty(ret))
-            return null;
-        int pos = ret.indexOf("?");
-        if (pos != -1) {
-
-            ret = ret.substring(0, pos);
-        }
-        return ret;
     }
 
     private static int computeSampleSize(BitmapFactory.Options options,
@@ -289,42 +188,6 @@ public class ImageUtils {
             tmp.recycle();
         }
 
-        return bitmap;
-    }
-
-    @SuppressWarnings("ResourceType")
-    public static Bitmap loadDefaultAvatar() {
-        Resources res = ContextUtils.getResources();
-        InputStream is = res.openRawResource(com.justwen.androidnga.module.message.R.drawable.default_avatar);
-        InputStream is2 = res.openRawResource(com.justwen.androidnga.module.message.R.drawable.default_avatar);
-        return loadAvatarFromStream(is, is2);
-    }
-
-    static public Bitmap loadAvatarFromStream(InputStream is, InputStream is2) {
-        return loadAvatarFromStream(is, is2, max_avatar_height);
-    }
-
-    static public Bitmap loadAvatarFromStream(InputStream is, InputStream is2, int maxHeight) {
-        if (is == null)
-            return null;
-        if (is == is2)
-            return null;
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inJustDecodeBounds = true;
-        final int avatarWidth = PhoneConfiguration.getInstance().getAvatarSize();
-
-        final int minSideLength = Math.min(avatarWidth, maxHeight);
-        opts.inSampleSize = ImageUtils.computeSampleSize(opts, minSideLength,
-                avatarWidth * maxHeight);
-        opts.inJustDecodeBounds = false;
-        opts.inInputShareable = true;
-        opts.inPurgeable = true;
-        Bitmap bitmap = BitmapFactory.decodeStream(is2, null, opts);
-        if (bitmap != null && bitmap.getWidth() != avatarWidth) {
-            Bitmap tmp = bitmap;
-            bitmap = zoomImageByWidth(tmp, avatarWidth, false);
-            tmp.recycle();
-        }
         return bitmap;
     }
 

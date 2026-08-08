@@ -42,7 +42,6 @@ import sp.phone.ui.fragment.dialog.AvatarDialogFragment;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.FunctionUtils;
-import sp.phone.util.HtmlUtils;
 import sp.phone.util.ImageUtils;
 import sp.phone.util.StringUtils;
 import sp.phone.view.webview.LocalWebView;
@@ -368,9 +367,6 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     public ArticleListAdapter(Context context, FragmentManager fm) {
         mContext = context;
         mFragmentManager = fm;
-        if (HtmlUtils.hide == null) {
-            HtmlUtils.initStaticStrings(mContext);
-        }
         mLayoutInflater = LayoutInflater.from(mContext);
         mWifiConnected = DeviceUtils.isWifiConnected(context);
     }

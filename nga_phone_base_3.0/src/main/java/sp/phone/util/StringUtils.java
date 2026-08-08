@@ -155,17 +155,6 @@ public class StringUtils {
         }
     }
 
-    public static Long sDateToLong(String sDate, String dateFormat) {
-        DateFormat df = new SimpleDateFormat(dateFormat);
-        Date date = new Date();
-        try {
-            date = df.parse(sDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date.getTime();
-    }
-
     public static String encodeUrl(final String s, final String charset) {
 
         /*
@@ -179,29 +168,6 @@ public class StringUtils {
         String ret = UriEncoderWithCharset.encode(s, null, charset);
         // NLog.i("111111", s+"----->"+ret);
         return ret;
-    }
-
-    public static String parseHTML(String s) {
-        // 转换字体
-        if (s.indexOf("[quote]") != -1) {
-            s = s.replace("[quote]", "");
-            s = s.replace("[/quote]", "</font><font color='#1d2a63' size='10'>");
-
-            s = s.replace("[b]", "<font color='red' size='1'>");
-            s = s.replace("[/b]", "</font>");
-            s = s.replace("<br/><br/>", "<br/>");
-            s = s.replace("<br/><br/>", "<br/>");
-
-            s = s.replace("[/pid]", "<font color='blue' size='2'>");
-            s = s + "</font>";
-        } else {
-            s = "<font color='#1d2a63' size='10'>" + s;
-            s = s + "</font>";
-        }
-        // 转换 表情
-
-        s = s.replaceAll("(\\[s:\\d\\])", "<img src='$1'>");
-        return s;
     }
 
     public static String decodealbum(String s, String quotediv) {
