@@ -151,7 +151,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
     @Override
     public void banThisSB(ThreadPostBean row) {
-        if (row.getISANONYMOUS()) {
+        if (row.threadPostInfo.isAnonymous) {
             mBaseView.showToast(R.string.cannot_add_to_blacklist_cause_anony);
         } else {
             UserManager um = UserManagerImpl.getInstance();
@@ -187,7 +187,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
-            if (row.getISANONYMOUS()) {// 是匿名的人
+            if (row.threadPostInfo.isAnonymous) {// 是匿名的人
                 postPrefix.append("[/pid] [b]Post by [uid=")
                         .append("-1")
                         .append("]")
@@ -258,7 +258,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
-            if (row.getISANONYMOUS()) {// 是匿名的人
+            if (row.threadPostInfo.isAnonymous) {// 是匿名的人
                 postPrefix.append("[/pid] [b]Post by [uid=")
                         .append("-1")
                         .append("]")

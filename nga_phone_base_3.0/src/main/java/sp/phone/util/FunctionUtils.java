@@ -290,13 +290,14 @@ public class FunctionUtils {
                                       TextView nickNameTV, String topicOwner, Context context) {
         initStaticStrings(context);
         String nickName = row.author;
+        String muteTime = row.threadPostInfo.muteTime;
         // int now = 0;
         if ("-1".equals(row.yz))// nuked
         {
             fgColor = nickNameTV.getResources().getColor(R.color.title_red);
             nickName += "(VIP)";
-        } else if (!StringUtils.isEmpty(row.muteTime)
-                && !"0".equals(row.muteTime) || row.isMuted()) {
+        } else if (!StringUtils.isEmpty(muteTime)
+                && !"0".equals(muteTime) || row.threadPostInfo.isMuted) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + legend + ")";
         }
@@ -304,7 +305,7 @@ public class FunctionUtils {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + blacklistban + ")";
         }
-        if (row.getISANONYMOUS()) {
+        if (row.threadPostInfo.isAnonymous) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_red);
             nickName += "(匿名)";
         }

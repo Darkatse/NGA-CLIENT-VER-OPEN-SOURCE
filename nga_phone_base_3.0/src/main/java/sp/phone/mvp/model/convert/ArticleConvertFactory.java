@@ -20,10 +20,13 @@ import sp.phone.common.ForumConstants;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
 import com.client.androidnga.core.data.bean.ThreadAttachBean;
+import com.client.androidnga.core.data.bean.ThreadUserBean;
 import com.client.androidnga.core.data.model.ClientModel;
 import com.client.androidnga.core.data.model.ThreadInfo;
 import com.client.androidnga.core.data.bean.ThreadPostBean;
 import com.client.androidnga.core.data.model.ThreadPageInfo;
+import com.client.androidnga.core.parse.ThreadInfoParse;
+
 import sp.phone.theme.ThemeManager;
 import sp.phone.util.FunctionUtils;
 import sp.phone.util.StringUtils;
@@ -138,8 +141,8 @@ public class ArticleConvertFactory {
             row.content = row.subject;
             row.subject = null;
         }
-        if (!StringUtils.isEmpty(row.getFromClient())
-                && row.getFromClient().startsWith("103 ")
+        if (!StringUtils.isEmpty(row.from_client)
+                && row.from_client.startsWith("103 ")
                 && !StringUtils.isEmpty(row.content)) {
             row.content = StringUtils.unescape(row.content);
         }
@@ -222,31 +225,7 @@ public class ArticleConvertFactory {
     }
 
     private static void buildRowClientInfo(ThreadPostBean row, JSONObject rowObj) {
-        String client = rowObj.getString("from_client");
-        if (!StringUtils.isEmpty(client)) {
-            row.setFromClient(client);
-            if (!client.trim().equals("")) {
-                String clientAppCode;
-                if (client.contains(" ")) {
-                    clientAppCode = client.substring(0, client.indexOf(' '));
-                } else {
-                    clientAppCode = client;
-                }
-                if (clientAppCode.equals("1") || clientAppCode.equals("7") ) {
-                    row.threadPostInfo.clientModel = ClientModel.IOS;
-                } else if (clientAppCode.equals("101")) {
-                    row.threadPostInfo.clientModel = ClientModel.IOS_BROWSER;
-                } else if (clientAppCode.equals("8")) {
-                    row.threadPostInfo.clientModel = ClientModel.ANDROID;
-                } else if (clientAppCode.equals("9") || clientAppCode.equals("103")) {
-                    row.threadPostInfo.clientModel = ClientModel.WP;
-                } else if (clientAppCode.equals("100")) {
-                    row.threadPostInfo.clientModel = ClientModel.ANDROID_BROWSER;
-                } else {
-                    row.threadPostInfo.clientModel = ClientModel.UNKNOWN_BROWSER;
-                }
-            }
-        }
+        row.threadPostInfo.clientModel = ThreadInfoParse.INSTANCE.parseClientModel(row);
     }
 
     private static void buildRowUserInfo(ThreadPostBean row, JSONObject userInfoMap) {
@@ -259,55 +238,35 @@ public class ArticleConvertFactory {
         if (userInfo == null) {
             return;
         }
+        ThreadUserBean userBean = userInfo.toJavaObject(ThreadUserBean.class);
         int uid = row.authorid;
         row.threadPostInfo.isBlocked = UserManagerImpl.getInstance().checkBlackList(String.valueOf(uid));
-        String t1 = "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥";
-        String t2 = "王李张刘陈杨黄吴赵周徐孙马朱胡林郭何高罗郑梁谢宋唐许邓冯韩曹曾彭萧蔡潘田董袁于余叶蒋杜苏魏程吕丁沈任姚卢傅钟姜崔谭廖范汪陆金石戴贾韦夏邱方侯邹熊孟秦白江阎薛尹段雷黎史龙陶贺顾毛郝龚邵万钱严赖覃洪武莫孔汤向常温康施文牛樊葛邢安齐易乔伍庞颜倪庄聂章鲁岳翟殷詹申欧耿关兰焦俞左柳甘祝包宁尚符舒阮柯纪梅童凌毕单季裴霍涂成苗谷盛曲翁冉骆蓝路游辛靳管柴蒙鲍华喻祁蒲房滕屈饶解牟艾尤阳时穆农司卓古吉缪简车项连芦麦褚娄窦戚岑景党宫费卜冷晏席卫米柏宗瞿桂全佟应臧闵苟邬边卞姬师和仇栾隋商刁沙荣巫寇桑郎甄丛仲虞敖巩明佘池查麻苑迟邝 ";
-        if (userInfo.getString("username").length() == 39
-                && userInfo.getString("username").startsWith("#anony_")) {
-            StringBuilder builder = new StringBuilder();
-            String username = userInfo.getString("username");
-            int i = 6;
-            for (int j = 0; j < 6; j++) {
-                int pos;
-                if (j == 0 || j == 3) {
-                    pos = Integer.valueOf(username.substring(i + 1, i + 2), 16);
-                    builder.append(t1.charAt(pos));
-                } else {
-                    pos = Integer.valueOf(username.substring(i, i + 2), 16);
-                    builder.append(t2.charAt(pos));
-                }
-                i += 2;
-            }
-            row.author = builder.toString();
-            row.setISANONYMOUS(true);
+        if (userBean.username.length() == 39
+                && userBean.username.startsWith("#anony_")) {
+            row.author = ThreadInfoParse.INSTANCE.parseAnonymousName(userBean.username);
+            row.threadPostInfo.isAnonymous = true;
         } else {
-            row.author = userInfo.getString("username");
+            row.author = userBean.username;
         }
-        row.js_escap_avatar = userInfo.getString("avatar");
-        row.yz = userInfo.getString("yz");
-        row.muteTime = userInfo.getString("mute_time");
-        try {
-            row.aurvrc = Integer.valueOf(userInfo.getString("rvrc"));
-        } catch (Exception e) {
-            row.aurvrc = 0;
-        }
-        row.signature = userInfo.getString("signature");
+        row.js_escap_avatar = userBean.avatar;
+        row.yz = userBean.yz;
+        row.threadPostInfo.muteTime = userBean.mute_time;
+        row.signature = userBean.signature;
+        row.threadPostInfo.postCount = userBean.postnum;
 
         try {
-            row.setPostCount(userInfo.getString("postnum"));
-            row.setReputation(Float.parseFloat(userInfo.getString("rvrc")) / 10.0f);
-            row.setMemberGroup(groupObj.getJSONObject(userInfo.getString("memberid")).getString("0"));
-        } catch (Exception e) {
+            if (userBean.rvrc != null) {
+                row.threadPostInfo.reputation = Float.parseFloat(userBean.rvrc) / 10.0f;
+            }
+            row.threadPostInfo.memberGroup = groupObj.getJSONObject(userBean.memberid).getString("0");
+        } catch (Exception ignore) {
         }
 
-        JSONObject obj = userInfo.getJSONObject("buffs");
-        if (obj != null) {
-            for (String id : ForumConstants.BUFF_MUTE_IDS) {
-                if (obj.containsKey(id)) {
-                    row.setMuted(true);
-                    break;
-                }
+        var obj = userBean.buffs;
+        for (String id : ForumConstants.BUFF_MUTE_IDS) {
+            if (obj.containsKey(id)) {
+                row.threadPostInfo.isMuted = true;
+                break;
             }
         }
     }

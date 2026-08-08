@@ -39,6 +39,9 @@ class ThreadPostInfo : JavaBean {
     @JvmField
     var formatHtml: String? = null
 
+    /**
+     * 客户端类型
+     */
     @JvmField
     var clientModel: ClientModel? = null
 
@@ -47,6 +50,42 @@ class ThreadPostInfo : JavaBean {
      */
     @JvmField
     var isBlocked = false
+
+    /**
+     * 是否匿名
+     */
+    @JvmField
+    var isAnonymous = false
+
+    /**
+     * 是否被禁言
+     */
+    @JvmField
+    var isMuted = false
+
+    /**
+     * 禁言时间
+     */
+    @JvmField
+    var muteTime: String? = null
+
+    /**
+     * 发帖数
+     */
+    @JvmField
+    var postCount: String? = null
+
+    /**
+     * 威望
+     */
+    @JvmField
+    var reputation: Float = 0f
+
+    /**
+     * 用户组
+     */
+    @JvmField
+    var memberGroup: String? = null
 }
 
 enum class ClientModel(val modelName: String) {

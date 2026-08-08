@@ -37,6 +37,8 @@ import sp.phone.common.UserManagerImpl;
 import com.client.androidnga.core.data.model.ClientModel;
 import com.client.androidnga.core.data.model.ThreadInfo;
 import com.client.androidnga.core.data.bean.ThreadPostBean;
+import com.client.androidnga.core.data.model.ThreadPostInfo;
+
 import sp.phone.rxjava.BaseSubscriber;
 import sp.phone.rxjava.RxUtils;
 import sp.phone.theme.ThemeManager;
@@ -116,7 +118,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                     postPrefix.append(page);
                 postPrefix.append("]");// Topic
                 postPrefix.append("Reply");
-                if (row.getISANONYMOUS()) {// 是匿名的人
+                if (row.threadPostInfo.isAnonymous) {// 是匿名的人
                     postPrefix.append("[/pid] [b]Post by [uid=");
                     postPrefix.append("-1");
                     postPrefix.append("]");
@@ -182,7 +184,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         public void onClick(View view) {
             ThreadPostBean row = (ThreadPostBean) view.getTag();
 
-            if (row.getISANONYMOUS()) {
+            if (row.threadPostInfo.isAnonymous) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
             } else if (row.author != null){
                 ARouter.getInstance()
@@ -198,7 +200,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         @Override
         public void onClick(View view) {
             ThreadPostBean row = (ThreadPostBean) view.getTag();
-            if (row.getISANONYMOUS()) {
+            if (row.threadPostInfo.isAnonymous) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
             } else {
                 Bundle bundle = new Bundle();
@@ -357,7 +359,9 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         holder.postTimeTv.setText(row.postdate);
         holder.scoreTv.setText(MessageFormat.format("{0}", row.score));
 
-        holder.detailTv.setText(String.format("级别：%s   威望：%s   发帖：%s", row.getMemberGroup(), row.getReputation(), row.getPostCount()));
+        ThreadPostInfo postInfo = row.threadPostInfo;
+
+        holder.detailTv.setText(String.format("级别：%s   威望：%s   发帖：%s", postInfo.memberGroup, postInfo.reputation, postInfo.postCount));
 
     }
 

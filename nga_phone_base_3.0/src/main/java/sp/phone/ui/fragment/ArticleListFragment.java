@@ -107,7 +107,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                     FunctionUtils.handleReport(row, mRequestParam.tid, getFragmentManager());
                     break;
                 case R.id.menu_signature:
-                    if (row.getISANONYMOUS()) {
+                    if (row.threadPostInfo.isAnonymous) {
                         ActivityUtils.showToast("这白痴匿名了,神马都看不到");
                     } else {
                         FunctionUtils.Create_Signature_Dialog(row, getActivity(),
