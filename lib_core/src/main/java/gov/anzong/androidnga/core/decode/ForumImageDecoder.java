@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import gov.anzong.androidnga.base.util.StringUtils;
 import gov.anzong.androidnga.common.util.EmoticonUtils;
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 
 /**
  * Created by Justwen on 2018/8/25.

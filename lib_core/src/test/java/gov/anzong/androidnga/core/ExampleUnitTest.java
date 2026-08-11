@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumBasicDecoder;
 
 /**

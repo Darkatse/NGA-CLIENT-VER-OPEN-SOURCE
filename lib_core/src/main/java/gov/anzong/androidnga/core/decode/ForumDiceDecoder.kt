@@ -1,7 +1,7 @@
 package gov.anzong.androidnga.core.decode
 
 import gov.anzong.androidnga.common.base.JavaBean
-import gov.anzong.androidnga.core.data.HtmlData
+import com.client.androidnga.core.data.html.HtmlData
 import java.util.regex.Pattern
 import kotlin.math.floor
 
@@ -32,9 +32,9 @@ class ForumDiceDecoder : IForumDecoder {
         }
         val arg = DiceData()
         arg.seed = 2110032.0
-        arg.authorId = htmlData.uid.toIntOrNull() ?: 0
-        arg.pid = htmlData.pid.toIntOrNull() ?: 0
-        arg.tid = htmlData.tid.toIntOrNull() ?: 0
+        arg.authorId = htmlData.uid?.toIntOrNull() ?: 0
+        arg.pid = htmlData.pid?.toIntOrNull() ?: 0
+        arg.tid = htmlData.tid?.toIntOrNull() ?: 0
         arg.id = "postcontent0"
         val argsId =
             if (arg.id != null) {

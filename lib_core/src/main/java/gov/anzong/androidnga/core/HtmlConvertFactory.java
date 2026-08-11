@@ -6,7 +6,7 @@ import java.util.List;
 
 import gov.anzong.androidnga.common.util.FileUtils;
 import gov.anzong.androidnga.core.corebuild.HtmlBuilder;
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 
 public class HtmlConvertFactory {

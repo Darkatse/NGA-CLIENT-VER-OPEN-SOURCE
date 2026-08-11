@@ -37,7 +37,7 @@ import com.client.androidnga.core.parse.ForumParsekUtils;
 
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.proxy.ProxyBridge;
