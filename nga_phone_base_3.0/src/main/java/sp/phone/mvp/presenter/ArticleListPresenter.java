@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
 
+import com.client.androidnga.core.data.model.ThreadPostInfo;
 import com.justwen.androidnga.base.activity.ARouterConstants;
 
 import java.util.Map;
@@ -18,7 +19,6 @@ import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.common.UserManager;
 import sp.phone.common.UserManagerImpl;
 import com.client.androidnga.core.data.model.ThreadInfo;
-import com.client.androidnga.core.data.bean.ThreadPostBean;
 import sp.phone.mvp.contract.ArticleListContract;
 import sp.phone.mvp.model.ArticleListModel;
 import sp.phone.param.ArticleListParam;
@@ -150,36 +150,36 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     @Override
-    public void banThisSB(ThreadPostBean row) {
-        if (row.threadPostInfo.isAnonymous) {
+    public void banThisSB(ThreadPostInfo row) {
+        if (row.isAnonymous) {
             mBaseView.showToast(R.string.cannot_add_to_blacklist_cause_anony);
         } else {
             UserManager um = UserManagerImpl.getInstance();
-            if (row.threadPostInfo.isBlocked) {
-                row.threadPostInfo.isBlocked = false;
-                um.removeFromBlackList(String.valueOf(row.authorid));
+            if (row.isBlocked) {
+                row.isBlocked = false;
+                um.removeFromBlackList(String.valueOf(row.authorId));
                 mBaseView.showToast(R.string.remove_from_blacklist_success);
             } else {
-                row.threadPostInfo.isBlocked = true;
-                um.addToBlackList(row.author, String.valueOf(row.authorid));
+                row.isBlocked = true;
+                um.addToBlackList(row.author, String.valueOf(row.authorId));
                 mBaseView.showToast(R.string.add_to_blacklist_success);
             }
         }
     }
 
     @Override
-    public void postComment(ArticleListParam param, ThreadPostBean row) {
+    public void postComment(ArticleListParam param, ThreadPostInfo row) {
         final String quoteRegex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
         final String replayRegex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
         StringBuilder postPrefix = new StringBuilder();
-        String content = row.content
+        String content = row.rawContent
                 .replaceAll(quoteRegex, "")
                 .replaceAll(replayRegex, "");
-        final String postTime = row.postdate;
+        final String postTime = row.postDate;
         content = FunctionUtils.checkContent(content);
         content = StringUtils.unEscapeHtml(content);
         final String name = row.author;
-        final String uid = String.valueOf(row.authorid);
+        final String uid = String.valueOf(row.authorId);
         String tidStr = String.valueOf(param.tid);
         if (row.pid != 0) {
             postPrefix.append("[quote][pid=")
@@ -187,7 +187,7 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
-            if (row.threadPostInfo.isAnonymous) {// 是匿名的人
+            if (row.isAnonymous) {// 是匿名的人
                 postPrefix.append("[/pid] [b]Post by [uid=")
                         .append("-1")
                         .append("]")
@@ -237,28 +237,29 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     @Override
-    public void quote(ArticleListParam param, ThreadPostBean row) {
+    public void quote(ArticleListParam param, ThreadPostInfo row) {
+        ThreadPostInfo postInfo = row;
         final String quoteRegex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
         final String replayRegex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
         StringBuilder postPrefix = new StringBuilder();
-        String content = row.content
+        String content = row.rawContent
                 .replaceAll(quoteRegex, "")
                 .replaceAll(replayRegex, "");
-        final String postTime = row.postdate;
+        final String postTime = row.postDate;
         String mention = null;
-        final String name = row.author;
-        final String uid = String.valueOf(row.authorid);
+        final String name = postInfo.author;
+        final String uid = String.valueOf(postInfo.authorId);
         content = FunctionUtils.checkContent(content);
         content = StringUtils.unEscapeHtml(content);
         String tidStr = String.valueOf(param.tid);
-        if (row.pid != 0) {
+        if (postInfo.pid != 0) {
             mention = name;
             postPrefix.append("[quote][pid=")
-                    .append(row.pid)
+                    .append(postInfo.pid)
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
-            if (row.threadPostInfo.isAnonymous) {// 是匿名的人
+            if (postInfo.isAnonymous) {// 是匿名的人
                 postPrefix.append("[/pid] [b]Post by [uid=")
                         .append("-1")
                         .append("]")

@@ -14,9 +14,6 @@ class ThreadPostBean : JavaBean {
     var fid: Int = 0
 
     @JvmField
-    var author: String? = null //user name
-
-    @JvmField
     var authorid: Int = 0
 
     @JvmField
@@ -47,34 +44,18 @@ class ThreadPostBean : JavaBean {
     var level: String? = null
 
     @JvmField
-    var signature: String? = null
-
-    @JvmField
     var comments: List<ThreadPostBean>? = null
 
     @JvmField
     var comment: Map<String, ThreadPostBean> = emptyMap()
 
     @JvmField
-    val threadPostInfo = ThreadPostInfo()
+    var threadPostInfo: ThreadPostInfo? = null
 
     @JvmField
     var from_client: String? = null
 
     @JvmField
-    var attachmentHost: String? = null
-
-    var mImageUrlList: MutableList<String> = ArrayList()
-
-    @JvmField
     var score: Int = 0
-
-    fun addImageUrl(url: String) {
-        mImageUrlList.add(url)
-    }
-
-    val imageUrls: List<String>
-        get() = mImageUrlList
-
 
 }

@@ -7,7 +7,8 @@ import java.util.Map;
 
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import com.client.androidnga.core.data.model.ThreadInfo;
-import com.client.androidnga.core.data.bean.ThreadPostBean;
+import com.client.androidnga.core.data.model.ThreadPostInfo;
+
 import sp.phone.param.ArticleListParam;
 
 /**
@@ -22,15 +23,15 @@ public interface ArticleListContract {
 
         void loadPage(ArticleListParam param);
 
-        void banThisSB(ThreadPostBean row);
+        void banThisSB(ThreadPostInfo row);
 
-        void postComment(ArticleListParam param, ThreadPostBean row);
+        void postComment(ArticleListParam param, ThreadPostInfo row);
 
         void postSupportTask(int tid, int pid);
 
         void postOpposeTask(int tid, int pid);
 
-        void quote(ArticleListParam param, ThreadPostBean row);
+        void quote(ArticleListParam param, ThreadPostInfo row);
 
         void cachePage();
 

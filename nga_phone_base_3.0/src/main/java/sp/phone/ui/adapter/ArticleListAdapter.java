@@ -36,7 +36,6 @@ import sp.phone.common.UserManagerImpl;
 
 import com.client.androidnga.core.data.model.ClientModel;
 import com.client.androidnga.core.data.model.ThreadInfo;
-import com.client.androidnga.core.data.bean.ThreadPostBean;
 import com.client.androidnga.core.data.model.ThreadPostInfo;
 
 import sp.phone.rxjava.BaseSubscriber;
@@ -75,8 +74,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         @Override
         public void onClick(View v) {
 
-            ThreadPostBean row = (ThreadPostBean) v.getTag();
-            ClientModel clientModel = row.threadPostInfo.clientModel;
+            ThreadPostInfo row = (ThreadPostInfo) v.getTag();
+            ClientModel clientModel = row.clientModel;
             if (clientModel == null) {
                 return;
             }
@@ -88,27 +87,28 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private View.OnClickListener mOnReplyClickListener = new View.OnClickListener() {
 
-        private Intent getReplyIntent(ThreadPostBean row) {
+        private Intent getReplyIntent(ThreadPostInfo row) {
+            ThreadPostInfo postInfo = row;
             Intent intent = new Intent();
             StringBuilder postPrefix = new StringBuilder();
             String mention = null;
 
             final String quote_regex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
             final String replay_regex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
-            String content = row.content;
-            final String name = row.author;
-            final String uid = String.valueOf(row.authorid);
+            String content = row.rawContent;
+            final String name = postInfo.author;
+            final String uid = String.valueOf(postInfo.authorId);
             int page = (row.lou + 20) / 20;// 以楼数计算page
             content = content.replaceAll(quote_regex, "");
             content = content.replaceAll(replay_regex, "");
-            final String postTime = row.postdate;
-            final String tidStr = String.valueOf(row.tid);
+            final String postTime = row.postDate;
+            final String tidStr = String.valueOf(postInfo.tid);
             content = FunctionUtils.checkContent(content);
             content = StringUtils.unEscapeHtml(content);
-            if (row.pid != 0 || row.lou == 0) {
+            if (postInfo.pid != 0 || row.lou == 0) {
                 mention = name;
                 postPrefix.append("[quote][pid=");
-                postPrefix.append(row.pid);
+                postPrefix.append(postInfo.pid);
                 postPrefix.append(',');
                 postPrefix.append(tidStr);
                 postPrefix.append(",");
@@ -116,7 +116,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                     postPrefix.append(page);
                 postPrefix.append("]");// Topic
                 postPrefix.append("Reply");
-                if (row.threadPostInfo.isAnonymous) {// 是匿名的人
+                if (postInfo.isAnonymous) {// 是匿名的人
                     postPrefix.append("[/pid] [b]Post by [uid=");
                     postPrefix.append("-1");
                     postPrefix.append("]");
@@ -156,7 +156,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         @Override
         public void onClick(View view) {
 
-            ThreadPostBean row = (ThreadPostBean) view.getTag();
+            ThreadPostInfo row = (ThreadPostInfo) view.getTag();
 
             Observable.create((ObservableOnSubscribe<Intent>) emitter -> {
                 emitter.onNext(getReplyIntent(row));
@@ -180,15 +180,15 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     private View.OnClickListener mOnProfileClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ThreadPostBean row = (ThreadPostBean) view.getTag();
+            ThreadPostInfo row = (ThreadPostInfo) view.getTag();
 
-            if (row.threadPostInfo.isAnonymous) {
+            if (row.isAnonymous) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
             } else if (row.author != null){
                 ARouter.getInstance()
                         .build(ARouterConstants.ACTIVITY_PROFILE)
                         .withString("mode", "uid")
-                        .withString("uid", String.valueOf(row.authorid))
+                        .withString("uid", String.valueOf(row.authorId))
                         .navigation();
             }
         }
@@ -197,13 +197,13 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     private View.OnClickListener mOnAvatarClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ThreadPostBean row = (ThreadPostBean) view.getTag();
-            if (row.threadPostInfo.isAnonymous) {
+            ThreadPostInfo row = (ThreadPostInfo) view.getTag();
+            if (row.isAnonymous) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
             } else {
                 Bundle bundle = new Bundle();
                 bundle.putString("name", row.author);
-                bundle.putString("url", row.threadPostInfo.avatarUrl);
+                bundle.putString("url", row.avatarUrl);
                 BaseDialogFragment.show(mFragmentManager, bundle, AvatarDialogFragment.class);
                 //FunctionUtils.Create_Avatar_Dialog(row, view.getContext(), null);
             }
@@ -293,8 +293,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        ThreadPostBean row = mData.rowList.get(position);
-        return TextUtils.isEmpty(row.threadPostInfo.formatHtml) ? VIEW_TYPE_NATIVE_VIEW : VIEW_TYPE_WEB_VIEW;
+        ThreadPostInfo row = mData.threadPostList.get(position);
+        return TextUtils.isEmpty(row.formatHtml) ? VIEW_TYPE_NATIVE_VIEW : VIEW_TYPE_WEB_VIEW;
     }
 
     @Override
@@ -325,7 +325,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ArticleViewHolder holder, final int position) {
 
-        final ThreadPostBean row = mData.rowList.get(position);
+        final ThreadPostInfo row = mData.threadPostList.get(position);
 
         if (row == null) {
             return;
@@ -334,6 +334,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         if (!PhoneConfiguration.getInstance().useSolidColorBackground()) {
             holder.itemView.setBackgroundResource(ThemeManager.getInstance().getBackgroundColor(position));
         }
+
+        ThreadPostInfo postInfo = row;
 
         holder.supportBtn.setTag(row);
         holder.opposeBtn.setTag(row);
@@ -347,13 +349,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         onBindContentView(holder, row, position);
 
         int fgColor = mThemeManager.getAccentColor(mContext);
-        FunctionUtils.handleNickName(row, fgColor, holder.nickNameTV, mContext);
+        FunctionUtils.handleNickName(postInfo, fgColor, holder.nickNameTV, mContext);
 
         holder.floorTv.setText(MessageFormat.format("[{0} 楼]", String.valueOf(row.lou)));
-        holder.postTimeTv.setText(row.postdate);
+        holder.postTimeTv.setText(postInfo.postDate);
         holder.scoreTv.setText(MessageFormat.format("{0}", row.score));
-
-        ThreadPostInfo postInfo = row.threadPostInfo;
 
         holder.detailTv.setText(String.format("级别：%s   威望：%s   发帖：%s", postInfo.memberGroup, postInfo.reputation, postInfo.postCount));
 
@@ -368,8 +368,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         return localWebView;
     }
 
-    private void onBindContentView(ArticleViewHolder holder, ThreadPostBean row, int position) {
-        String html = row.threadPostInfo.formatHtml;
+    private void onBindContentView(ArticleViewHolder holder, ThreadPostInfo row, int position) {
+        String html = row.formatHtml;
         if (html != null) {
             if (mLocalWebViews != null) {
                 LocalWebView localWebView = mLocalWebViews[position];
@@ -389,15 +389,15 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                 holder.contentTV = createLocalWebView();
                 holder.contentContainer.addView(holder.contentTV);
             }
-            holder.contentTV.getWebViewClientEx().setImgUrls(row.getImageUrls());
+            holder.contentTV.getWebViewClientEx().setImgUrls(row.imageUrlList);
             holder.contentTV.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
         } else {
-            holder.contentTextView.setText(row.content);
+            holder.contentTextView.setText(row.rawContent);
         }
     }
 
-    private void onBindDeviceType(ImageView clientBtn, ThreadPostBean row) {
-        ClientModel clientModel = row.threadPostInfo.clientModel;
+    private void onBindDeviceType(ImageView clientBtn, ThreadPostInfo row) {
+        ClientModel clientModel = row.clientModel;
         if (clientModel == null) {
             clientBtn.setVisibility(View.GONE);
             clientBtn.setTag(null);
@@ -425,8 +425,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         return mData == null ? 0 : mData.rowNum;
     }
 
-    private void onBindAvatarView(ImageView avatarIv, ThreadPostBean row) {
-        final String avatarUrl = row.threadPostInfo.avatarUrl;
+    private void onBindAvatarView(ImageView avatarIv, ThreadPostInfo row) {
+        final String avatarUrl = row.avatarUrl;
         final boolean downImg = PhoneConfiguration.getInstance().isAvatarLoadEnabled(mWifiConnected);
 
         ImageUtils.loadRoundCornerAvatar(avatarIv, avatarUrl, !downImg);

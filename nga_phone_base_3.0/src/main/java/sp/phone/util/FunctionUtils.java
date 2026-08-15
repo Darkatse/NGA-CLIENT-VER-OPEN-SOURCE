@@ -32,16 +32,14 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.client.androidnga.core.data.model.ThreadPostInfo;
+import com.client.androidnga.core.parse.ForumParsekUtils;
+
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
-
-import com.client.androidnga.core.data.bean.ThreadPostBean;
-import com.client.androidnga.core.data.model.ThreadPostInfo;
-import com.client.androidnga.core.parse.ForumParsekUtils;
-
 import sp.phone.proxy.ProxyBridge;
 import sp.phone.theme.ThemeManager;
 import sp.phone.ui.fragment.dialog.ReportDialogFragment;
@@ -88,7 +86,7 @@ public class FunctionUtils {
     }
 
 
-    public static void Create_Signature_Dialog(ThreadPostBean row, final Context context, final View scrollview) {
+    public static void Create_Signature_Dialog(ThreadPostInfo row, final Context context, final View scrollview) {
         LayoutInflater layoutInflater = ((Activity) context).getLayoutInflater();
         final View view = layoutInflater.inflate(R.layout.dialog_signature,
                 null);
@@ -143,7 +141,7 @@ public class FunctionUtils {
     }
 
     @SuppressWarnings("unused")
-    public static void createVoteDialog(ThreadPostBean row, final Context context, final View scrollview, Toast toast) {
+    public static void createVoteDialog(ThreadPostInfo row, final Context context, final View scrollview, Toast toast) {
         LayoutInflater layoutInflater = ((Activity) context).getLayoutInflater();
         final View view = layoutInflater.inflate(R.layout.dialog_vote, null);
         String name = row.author;
@@ -286,11 +284,10 @@ public class FunctionUtils {
     }
 
 
-    public static void handleNickName(ThreadPostBean row, int fgColor,
+    public static void handleNickName(ThreadPostInfo postInfo, int fgColor,
                                       TextView nickNameTV, Context context) {
         initStaticStrings(context);
-        String nickName = row.author;
-        ThreadPostInfo postInfo = row.threadPostInfo;
+        String nickName = postInfo.author;
 
         // int now = 0;
         if (postInfo.isNuked) {
@@ -320,13 +317,13 @@ public class FunctionUtils {
     }
 
 
-    public static String signatureToHtmlText(final ThreadPostBean row,
+    public static String signatureToHtmlText(final ThreadPostInfo row,
                                              boolean showImage, int imageQuality, final String fgColorStr,
                                              final String bgcolorStr, Context context) {
         initStaticStrings(context);
         String ngaHtml = ForumDecoder.decode(row.signature, HtmlData.create(row.signature, Utils.getNGAHost()));
         if (StringUtils.isEmpty(ngaHtml)) {
-            ngaHtml = row.alterinfo;
+            ngaHtml = row.alterInfo;
         }
         if (StringUtils.isEmpty(ngaHtml)) {
             ngaHtml = "<font color='red'>[" + context.getString(R.string.hide)
@@ -343,7 +340,7 @@ public class FunctionUtils {
         return ngaHtml;
     }
 
-    public static String VoteToHtmlText(final ThreadPostBean row, boolean showImage,
+    public static String VoteToHtmlText(final ThreadPostInfo row, boolean showImage,
                                         int imageQuality, final String fgColorStr, final String bgcolorStr) {
         if (StringUtils.isEmpty(row.vote))
             return "本楼没有投票/投注内容";
@@ -365,15 +362,7 @@ public class FunctionUtils {
     }
 
 
-    public static boolean isComment(ThreadPostBean row) {
-
-        return row.alterinfo == null && row.attachs == null
-                && row.comments == null
-                && row.threadPostInfo.avatarUrl == null && row.level == null
-                && row.signature == null;
-    }
-
-    public static void handleReport(ThreadPostBean row, int tid, FragmentManager fm) {
+    public static void handleReport(ThreadPostInfo row, int tid, FragmentManager fm) {
 
         DialogFragment df = new ReportDialogFragment();
         Bundle args = new Bundle();

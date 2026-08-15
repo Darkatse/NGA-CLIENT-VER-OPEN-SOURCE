@@ -1,17 +1,17 @@
 package com.client.androidnga.core.data.model
 
-import com.client.androidnga.core.data.bean.ThreadPostBean
 import gov.anzong.androidnga.common.base.JavaBean
 
 class ThreadInfo : JavaBean {
-    @JvmField
-    var rowList: List<ThreadPostBean>? = null
 
     @JvmField
-    var threadInfo: ThreadPageInfo? = null
+    var pageInfo: ThreadPageInfo? = null
 
     @JvmField
     var threadPostList = mutableListOf<ThreadPostInfo>()
+
+    @JvmField
+    var basicInfo: ThreadBasicInfo? = null
 
     private var __ROWS = 0
 
@@ -31,13 +31,57 @@ class ThreadInfo : JavaBean {
         this.__ROWS = __ROWS
     }
 
+}
 
+class ThreadBasicInfo : JavaBean {
+
+    @JvmField
+    var attachHost: String? = null
 }
 
 class ThreadPostInfo : JavaBean {
 
     @JvmField
+    var pid: Int = 0
+
+    @JvmField
+    var tid: Int = 0
+
+    @JvmField
+    var fid: Int = 0
+
+    @JvmField
+    var author: String? = null
+
+    @JvmField
+    var authorId: Int = 0
+
+    @JvmField
+    var lou: Int = 0
+
+    @JvmField
+    var subject: String? = null
+
+    @JvmField
+    var vote: String? = null
+
+    @JvmField
+    var score: Int = 0
+
+    @JvmField
+    var postDate: String? = null
+
+    @JvmField
+    var signature: String? = null
+
+    @JvmField
+    var alterInfo: String? = null
+
+    @JvmField
     var formatHtml: String? = null
+
+    @JvmField
+    var rawContent: String? = null
 
     /**
      * 客户端类型
@@ -104,6 +148,18 @@ class ThreadPostInfo : JavaBean {
      */
     @JvmField
     var avatarUrl: String? = null
+
+    /**
+     * 楼层图片链接列表
+     */
+    @JvmField
+    var imageUrlList: MutableList<String> = ArrayList()
+
+    /**
+     * 是否是评论
+     */
+    @JvmField
+    var isComment  =  false
 }
 
 enum class ClientModel(val modelName: String) {
