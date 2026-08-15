@@ -1,9 +1,74 @@
 package com.client.androidnga.core.parse
 
+import com.alibaba.fastjson2.JSON
+import com.client.androidnga.core.data.bean.ThreadBean
 import com.client.androidnga.core.data.bean.ThreadPostBean
+import com.client.androidnga.core.data.bean.ThreadUserBean
 import com.client.androidnga.core.data.model.ClientModel
+import com.client.androidnga.core.data.model.ThreadPageInfo
+import com.client.androidnga.core.data.model.ThreadPostInfo
 
 object ThreadInfoParse {
+
+    fun parserThreadBean(jsStr: String): ThreadBean? {
+        var js = jsStr
+        if (js.isEmpty()) {
+            return null
+        } else if (js.contains("/*error fill content")) {
+            js = js.substringBefore("/*error fill content")
+        }
+
+        js = js.replace("/\\*\\\$js\\$\\*/".toRegex(), "")
+            .replace("\"content\":\\+(\\d+),".toRegex(), "\"content\":\"+$1\",")
+            .replace("\"subject\":\\+(\\d+),".toRegex(), "\"subject\":\"+$1\",")
+            .replace("\"content\":(0\\d+),".toRegex(), "\"content\":\"$1\",")
+            .replace("\"subject\":(0\\d+),".toRegex(), "\"subject\":\"$1\",")
+            .replace("\"author\":(0\\d+),".toRegex(), "\"author\":\"$1\",")
+            .replace("\"alterinfo\":\"\\[(\\w|\\s)+]\\s+\",".toRegex(), "") //部分页面打不开的问题
+
+        val objStr = JSON.parseObject(js).getString("data")
+        return JSON.parseObject(objStr, ThreadBean::class.java)
+    }
+
+    fun parseUserInfo(
+        threadBean: ThreadBean,
+        postInfo: ThreadPostInfo,
+        userBean: ThreadUserBean
+    ) {
+        parseUserState(postInfo, userBean, threadBean.__T)
+        postInfo.avatarUrl = ForumParsekUtils.parseAvatarUrl(userBean.avatar);
+
+        val groupObj = JSON.parseObject(threadBean.__U["__GROUPS"])
+        postInfo.memberGroup = groupObj.getJSONObject(userBean.memberid).getString("0");
+
+        postInfo.postCount = userBean.postnum;
+        postInfo.reputation = userBean.rvrc?.toFloatOrNull()?.div(10.0f) ?: 0f
+    }
+
+    fun parseUserState(
+        postInfo: ThreadPostInfo,
+        userBean: ThreadUserBean,
+        pageInfo: ThreadPageInfo?
+    ) {
+        val buffs = userBean.buffs
+        val yz = userBean.yz
+        val mutedTime = userBean.mute_time
+        if ("-1" == yz) {
+            postInfo.isNuked = true
+        } else if (buffs.containsKey("117") || buffs.containsKey("105") || !mutedTime.isNullOrEmpty() && "0" != mutedTime) {
+            postInfo.isMuted = true
+        }
+
+        val userName = userBean.nickname
+        if (userName.length == 39 && userName.startsWith("#anony_")) {
+            postInfo.isAnonymous = true
+        }
+
+        if (pageInfo?.authorid == userBean.uid) {
+            postInfo.isThreadAuthor = true
+        }
+
+    }
 
     fun parseClientModel(postBean: ThreadPostBean): ClientModel? {
         return postBean.from_client?.let {
@@ -19,18 +84,23 @@ object ThreadInfoParse {
                 "1", "7" -> {
                     return ClientModel.IOS
                 }
+
                 "101" -> {
                     return ClientModel.IOS_BROWSER
                 }
+
                 "8" -> {
                     return ClientModel.ANDROID
                 }
+
                 "9", "103" -> {
                     return ClientModel.WP
                 }
+
                 "100" -> {
                     return ClientModel.ANDROID_BROWSER
                 }
+
                 else -> {
                     return ClientModel.UNKNOWN_BROWSER
                 }

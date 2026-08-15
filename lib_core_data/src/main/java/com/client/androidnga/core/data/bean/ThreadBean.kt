@@ -1,9 +1,26 @@
 package com.client.androidnga.core.data.bean
 
+import com.client.androidnga.core.data.model.ThreadPageInfo
 import gov.anzong.androidnga.common.base.JavaBean
 
-class ThreadBean {
-}
+data class ThreadBean(
+    @JvmField
+    var __GLOBAL: String? = null,
+    @JvmField
+    var __T: ThreadPageInfo? = null,
+    @JvmField
+    var __U: Map<String, String> = emptyMap(),
+    @JvmField
+    var __R: Map<String, ThreadPostBean> = emptyMap(),
+    @JvmField
+    var __R__ROWS: Int = 0,
+    @JvmField
+    var __R__ROWS_PAGE: Int = 0,
+    @JvmField
+    var __ROWS: Int = 0,
+    @JvmField
+    var __PAGE: Int = 0,
+) : JavaBean
 
 data class ThreadUserBean(
     @JvmField
@@ -27,7 +44,7 @@ data class ThreadUserBean(
     @JvmField
     var mute_time: String? = null,
     @JvmField
-    var nickname: String? = null,
+    var nickname: String = "",
     @JvmField
     var postnum: String? = null,
     @JvmField

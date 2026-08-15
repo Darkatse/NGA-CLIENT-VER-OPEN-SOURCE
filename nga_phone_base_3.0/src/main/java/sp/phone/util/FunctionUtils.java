@@ -32,16 +32,16 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import java.util.Objects;
-
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
-import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
 
 import com.client.androidnga.core.data.bean.ThreadPostBean;
+import com.client.androidnga.core.data.model.ThreadPostInfo;
+import com.client.androidnga.core.parse.ForumParsekUtils;
+
 import sp.phone.proxy.ProxyBridge;
 import sp.phone.theme.ThemeManager;
 import sp.phone.ui.fragment.dialog.ReportDialogFragment;
@@ -287,30 +287,29 @@ public class FunctionUtils {
 
 
     public static void handleNickName(ThreadPostBean row, int fgColor,
-                                      TextView nickNameTV, String topicOwner, Context context) {
+                                      TextView nickNameTV, Context context) {
         initStaticStrings(context);
         String nickName = row.author;
-        String muteTime = row.threadPostInfo.muteTime;
+        ThreadPostInfo postInfo = row.threadPostInfo;
+
         // int now = 0;
-        if ("-1".equals(row.yz))// nuked
-        {
+        if (postInfo.isNuked) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_red);
             nickName += "(VIP)";
-        } else if (!StringUtils.isEmpty(muteTime)
-                && !"0".equals(muteTime) || row.threadPostInfo.isMuted) {
+        } else if (postInfo.isMuted) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + legend + ")";
         }
-        if (row.threadPostInfo.isBlocked) {
+        if (postInfo.isBlocked) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_orange);
             nickName += "(" + blacklistban + ")";
         }
-        if (row.threadPostInfo.isAnonymous) {
+        if (postInfo.isAnonymous) {
             fgColor = nickNameTV.getResources().getColor(R.color.title_red);
             nickName += "(匿名)";
         }
 
-        if (Objects.equals(row.author, topicOwner)) {
+        if (postInfo.isThreadAuthor) {
             nickName += "(楼主)";
         }
 
@@ -362,23 +361,7 @@ public class FunctionUtils {
 
 
     public static String parseAvatarUrl(String js_escap_avatar) {
-        // "js_escap_avatar":"{ \"t\":1,\"l\":2,\"0\":{ \"0\":\"http://pic2.178.com/53/533387/month_1109/93ba4788cc8c7d6c75453fa8a74f3da6.jpg\",\"cX\":0.47,\"cY\":0.78},\"1\":{ \"0\":\"http://pic2.178.com/53/533387/month_1108/8851abc8674af3adc622a8edff731213.jpg\",\"cX\":0.49,\"cY\":0.68}}"
-        if (null == js_escap_avatar)
-            return null;
-
-        int start = js_escap_avatar.indexOf("http");
-        if (start == 0 || start == -1)
-            return js_escap_avatar;
-        int end = js_escap_avatar.indexOf("\"", start);//
-        if (end == -1)
-            end = js_escap_avatar.length();
-        String ret = null;
-        try {
-            ret = js_escap_avatar.substring(start, end);
-        } catch (Exception e) {
-            NLog.e("FunctionUtils", "cann't handle avatar url " + js_escap_avatar);
-        }
-        return ret;
+        return ForumParsekUtils.parseAvatarUrl(js_escap_avatar);
     }
 
 
@@ -386,7 +369,7 @@ public class FunctionUtils {
 
         return row.alterinfo == null && row.attachs == null
                 && row.comments == null
-                && row.js_escap_avatar == null && row.level == null
+                && row.threadPostInfo.avatarUrl == null && row.level == null
                 && row.signature == null;
     }
 

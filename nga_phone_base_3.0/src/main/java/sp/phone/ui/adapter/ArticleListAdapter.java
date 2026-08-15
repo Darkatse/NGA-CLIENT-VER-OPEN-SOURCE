@@ -71,8 +71,6 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private LocalWebView[] mLocalWebViews = new LocalWebView[20];
 
-    private String mTopicOwner;
-
     private View.OnClickListener mOnClientClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -205,7 +203,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             } else {
                 Bundle bundle = new Bundle();
                 bundle.putString("name", row.author);
-                bundle.putString("url", FunctionUtils.parseAvatarUrl(row.js_escap_avatar));
+                bundle.putString("url", row.threadPostInfo.avatarUrl);
                 BaseDialogFragment.show(mFragmentManager, bundle, AvatarDialogFragment.class);
                 //FunctionUtils.Create_Avatar_Dialog(row, view.getContext(), null);
             }
@@ -275,10 +273,6 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         mFragmentManager = fm;
         mLayoutInflater = LayoutInflater.from(mContext);
         mWifiConnected = DeviceUtils.isWifiConnected(context);
-    }
-
-    public void setTopicOwner(String topicOwner) {
-        mTopicOwner = topicOwner;
     }
 
     public void setData(ThreadInfo data) {
@@ -353,7 +347,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         onBindContentView(holder, row, position);
 
         int fgColor = mThemeManager.getAccentColor(mContext);
-        FunctionUtils.handleNickName(row, fgColor, holder.nickNameTV, mTopicOwner, mContext);
+        FunctionUtils.handleNickName(row, fgColor, holder.nickNameTV, mContext);
 
         holder.floorTv.setText(MessageFormat.format("[{0} 楼]", String.valueOf(row.lou)));
         holder.postTimeTv.setText(row.postdate);
@@ -432,7 +426,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     private void onBindAvatarView(ImageView avatarIv, ThreadPostBean row) {
-        final String avatarUrl = FunctionUtils.parseAvatarUrl(row.js_escap_avatar);
+        final String avatarUrl = row.threadPostInfo.avatarUrl;
         final boolean downImg = PhoneConfiguration.getInstance().isAvatarLoadEnabled(mWifiConnected);
 
         ImageUtils.loadRoundCornerAvatar(avatarIv, avatarUrl, !downImg);

@@ -47,19 +47,13 @@ class ThreadPostBean : JavaBean {
     var level: String? = null
 
     @JvmField
-    var yz: String? = null //negative integer if user is nuked
-
-    @JvmField
-    var js_escap_avatar: String? = null //avatar url
-
-    @JvmField
     var signature: String? = null
 
     @JvmField
     var comments: List<ThreadPostBean>? = null
 
     @JvmField
-    var hotReplies: List<String>? = null //热门回复
+    var comment: Map<String, ThreadPostBean> = emptyMap()
 
     @JvmField
     val threadPostInfo = ThreadPostInfo()

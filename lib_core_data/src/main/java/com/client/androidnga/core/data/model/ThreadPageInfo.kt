@@ -11,6 +11,9 @@ class ThreadPageInfo : JavaBean {
 
     var authorId: Int = 0
 
+    @JvmField
+    var authorid = 0
+
     var lastPoster: String? = null
 
     var replies: Int = 0

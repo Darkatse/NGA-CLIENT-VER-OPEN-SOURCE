@@ -70,6 +70,18 @@ class ThreadPostInfo : JavaBean {
     var muteTime: String? = null
 
     /**
+     * 账号是否被砍
+     */
+    @JvmField
+    var isNuked = false
+
+    /**
+     * 是否是楼主
+     */
+    @JvmField
+    var isThreadAuthor = false
+
+    /**
      * 发帖数
      */
     @JvmField
@@ -86,6 +98,12 @@ class ThreadPostInfo : JavaBean {
      */
     @JvmField
     var memberGroup: String? = null
+
+    /**
+     * 头像链接
+     */
+    @JvmField
+    var avatarUrl: String? = null
 }
 
 enum class ClientModel(val modelName: String) {

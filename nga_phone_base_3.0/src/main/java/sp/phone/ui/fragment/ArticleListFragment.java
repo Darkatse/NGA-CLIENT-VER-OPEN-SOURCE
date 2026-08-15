@@ -288,15 +288,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             getActivity().setTitle(data.threadInfo.getSubject());
         }
 
-        if (data != null && data.rowList != null && !data.rowList.isEmpty()) {
-            ThreadPostBean rowInfo = data.rowList.get(0);
-            if (rowInfo != null && rowInfo.lou == 0) {
-                viewModel.setTopicOwner(rowInfo.author);
-            }
-        }
-        if (mRequestParam.authorId == 0 && mRequestParam.searchPost == 0) {
-            mArticleAdapter.setTopicOwner(viewModel.getTopicOwner().getValue());
-        }
         mArticleAdapter.setData(data);
         mArticleAdapter.notifyDataSetChanged();
 
