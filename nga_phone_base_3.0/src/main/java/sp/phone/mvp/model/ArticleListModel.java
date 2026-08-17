@@ -2,6 +2,8 @@ package sp.phone.mvp.model;
 
 import android.text.TextUtils;
 
+import com.client.androidnga.core.parse.ForumParsekUtils;
+import com.client.androidnga.core.parse.ThreadInfoParse;
 import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import org.apache.commons.io.FileUtils;
@@ -10,10 +12,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import gov.anzong.androidnga.base.logger.Logger;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.ThreadUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.http.OnHttpCallBack;
+import gov.anzong.androidnga.service.HtmlConfigService;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -25,7 +29,6 @@ import com.client.androidnga.core.data.model.ThreadInfo;
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwen.androidnga.base.network.retrofit.RetrofitService;
 import sp.phone.mvp.contract.ArticleListContract;
-import sp.phone.mvp.model.convert.ArticleConvertFactory;
 import sp.phone.mvp.model.convert.ErrorConvertFactory;
 import sp.phone.param.ArticleListParam;
 import sp.phone.rxjava.BaseSubscriber;
@@ -83,10 +86,10 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
                     @Override
                     public ThreadInfo apply(@NonNull String s) throws Exception {
                         long time = System.currentTimeMillis();
-                        ThreadInfo data = ArticleConvertFactory.getArticleInfo(s);
+                        ThreadInfo data = getThreadInfo(s);
                         NLog.e(TAG, "time = " + (System.currentTimeMillis() - time));
                         if (data == null) {
-                            String errorMsg = ErrorConvertFactory.getErrorMessage(s);
+                            String errorMsg = ForumParsekUtils.parseErrorMsg(s);
                             if (errorMsg != null) {
                                 throw new Exception(errorMsg);
                             } else {
@@ -142,7 +145,7 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
                     + "/cache/" + param.tid + "/" + param.page + ".json";
             File cacheFile = new File(cachePath);
             String rawData = FileUtils.readFileToString(cacheFile);
-            ThreadInfo threadData = ArticleConvertFactory.getArticleInfo(rawData);
+            ThreadInfo threadData = getThreadInfo(rawData);
             if (threadData != null) {
                 emitter.onNext(threadData);
             } else {
@@ -161,6 +164,16 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
                         callBack.onError("读取缓存失败！");
                     }
                 });
+    }
+
+    private ThreadInfo getThreadInfo(String js) {
+        try {
+            return ThreadInfoParse.parse(js, new HtmlConfigService());
+        } catch (Exception e) {
+            NLog.e(TAG, "can not parse :\n" + js);
+            Logger.d(e);
+        }
+        return null;
     }
 
     public static class ServerException extends Exception {

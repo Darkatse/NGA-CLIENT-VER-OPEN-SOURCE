@@ -1,13 +1,12 @@
 package com.client.androidnga.core.data.bean
 
-import com.client.androidnga.core.data.model.ThreadPageInfo
 import gov.anzong.androidnga.common.base.JavaBean
 
 data class ThreadBean(
     @JvmField
     var __GLOBAL: String? = null,
     @JvmField
-    var __T: ThreadPageInfo? = null,
+    var __T: ThreadPageBean? = null,
     @JvmField
     var __U: Map<String, String> = emptyMap(),
     @JvmField

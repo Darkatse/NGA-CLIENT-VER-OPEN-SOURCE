@@ -173,6 +173,17 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                 item.setTitle(row.isBlocked ? R.string.cancel_ban_thisone : R.string.ban_thisone);
             }
 
+            if (row.isComment) {
+                item = menu.findItem(R.id.menu_post_comment);
+                if (item != null) {
+                    item.setVisible(false);
+                }
+                item = menu.findItem(R.id.menu_show_this_person_only);
+                if (item != null) {
+                    item.setVisible(false);
+                }
+            }
+
             item = menu.findItem(R.id.menu_vote);
             if (item != null && StringUtils.isEmpty(row.vote)) {
                 item.setVisible(false);
@@ -286,7 +297,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     public void setData(ThreadInfo data) {
         ArticleShareViewModel viewModel = getActivityViewModelProvider().get(ArticleShareViewModel.class);
         if (getActivity() != null && data != null) {
-            viewModel.setReplyCount(data.get__ROWS());
+            viewModel.setReplyCount(data.totalRows);
         }
         if (data != null && getActivity() != null && mRequestParam.title == null) {
             getActivity().setTitle(data.pageInfo.getSubject());

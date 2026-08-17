@@ -1,6 +1,5 @@
 package com.client.androidnga.core.data.bean
 
-import com.client.androidnga.core.data.model.ThreadPostInfo
 import gov.anzong.androidnga.common.base.JavaBean
 
 /**
@@ -44,13 +43,7 @@ class ThreadPostBean : JavaBean {
     var level: String? = null
 
     @JvmField
-    var comments: List<ThreadPostBean>? = null
-
-    @JvmField
     var comment: Map<String, ThreadPostBean> = emptyMap()
-
-    @JvmField
-    var threadPostInfo: ThreadPostInfo? = null
 
     @JvmField
     var from_client: String? = null

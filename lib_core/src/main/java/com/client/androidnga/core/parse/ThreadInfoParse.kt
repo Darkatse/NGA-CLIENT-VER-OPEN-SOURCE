@@ -3,26 +3,146 @@ package com.client.androidnga.core.parse
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONObject
 import com.client.androidnga.core.data.bean.ThreadBean
+import com.client.androidnga.core.data.bean.ThreadPageBean
 import com.client.androidnga.core.data.bean.ThreadPostBean
 import com.client.androidnga.core.data.bean.ThreadUserBean
+import com.client.androidnga.core.data.html.AttachmentData
 import com.client.androidnga.core.data.model.ClientModel
 import com.client.androidnga.core.data.model.ThreadBasicInfo
 import com.client.androidnga.core.data.model.ThreadInfo
 import com.client.androidnga.core.data.model.ThreadPageInfo
 import com.client.androidnga.core.data.model.ThreadPostInfo
+import gov.anzong.androidnga.core.HtmlConvertFactory
+import gov.anzong.androidnga.core.IHtmlConfigService
 
-object ThreadInfoParse {
+class ThreadInfoParse() {
 
-    fun parseThreadInfo(jsStr: String, bean: ThreadBean?): ThreadInfo {
+    companion object {
+        @JvmStatic
+        fun parse(rawData: String, config: IHtmlConfigService?): ThreadInfo? {
+            return ThreadInfoParse().parseThreadInfo(rawData, config = config)
+        }
+    }
 
-        val threadBean = bean ?: parserThreadBean(jsStr)
+    var threadBean: ThreadBean? = null
 
-        val threadInfo = ThreadInfo()
-        threadInfo.rawData = jsStr
-        threadInfo.basicInfo = parseBasicInfo(threadBean?.__GLOBAL)
-        threadInfo.pageInfo = threadBean?.__T
+    val userMap = mutableMapOf<String, ThreadUserBean>()
+
+    var threadInfo: ThreadInfo? = null
+
+    var parseConfig: IHtmlConfigService? = null
+
+    fun parseThreadInfo(
+        jsStr: String,
+        bean: ThreadBean? = null,
+        config: IHtmlConfigService? = null
+    ): ThreadInfo? {
+        threadBean = bean ?: parserThreadBean(jsStr)
+        if (threadBean == null) {
+            return null
+        }
+        parseConfig = config
+
+        threadInfo = ThreadInfo().apply {
+            rawData = jsStr
+            basicInfo = parseBasicInfo(threadBean?.__GLOBAL)
+            pageInfo = parsePageInfo(threadBean?.__T)
+            totalRows = threadBean?.__ROWS ?: 0
+            postInfoList =
+                parsePostInfoList(
+                    threadBean!!.__R,
+                    basicInfo,
+                    threadBean!!.__ROWS,
+                )
+        }
         return threadInfo
     }
+
+    private fun getUserBean(authorId: String): ThreadUserBean {
+        var userBean = userMap[authorId]
+        if (userBean == null) {
+            userBean = JSON.parseObject(
+                threadBean!!.__U[authorId],
+                ThreadUserBean::class.java
+            )
+            userMap[authorId] = userBean
+        }
+        return userBean
+    }
+
+    private fun parsePostInfoList(
+        postMap: Map<String, ThreadPostBean>,
+        basicInfo: ThreadBasicInfo?,
+        count: Int = 0,
+    ): List<ThreadPostInfo> {
+        val postInfoList = mutableListOf<ThreadPostInfo>()
+        for (i in 0..<count) {
+            val row: ThreadPostBean = postMap[i.toString()] ?: continue
+            val authorId = row.authorid
+            val userBean = getUserBean(authorId.toString())
+            val postInfo = parseThreadPostInfo(row, userBean)
+            if (row.comment.isNotEmpty()) {
+                postInfo.comments.addAll(parseCommentInfo(row, basicInfo))
+            }
+            postInfo.formatHtml = HtmlConvertFactory.convert(
+                postInfo,
+                basicInfo,
+                parseConfig
+            )
+            postInfo.isBlocked = parseConfig?.isBlocked(authorId.toString()) ?: false
+            postInfo.attachInfo = parsePostAttachInfo(row)
+            postInfo.isComment = isComment(postInfo, row)
+            postInfoList.add(postInfo)
+        }
+        return postInfoList
+    }
+
+    private fun parsePostAttachInfo(postBean: ThreadPostBean): List<AttachmentData> {
+        if (postBean.attachs != null) {
+            val attachments: MutableList<AttachmentData> = ArrayList()
+            for (entry in postBean.attachs!!.entries) {
+                val data = AttachmentData()
+                data.attachUrl = entry.value.attachurl
+                data.thumb = entry.value.thumb
+                data.attachmentHost = threadInfo?.basicInfo?.attachHost
+                attachments.add(data)
+            }
+            return attachments
+        } else {
+            return emptyList()
+        }
+    }
+
+    private fun isComment(row: ThreadPostInfo, bean: ThreadPostBean): Boolean {
+        return row.alterInfo.isNullOrEmpty()
+                && row.attachInfo.isEmpty()
+                && row.comments.isEmpty()
+                && row.fid == 0
+                && bean.level == null
+                && row.signature.isNullOrEmpty()
+    }
+
+    private fun parseCommentInfo(
+        postBean: ThreadPostBean,
+        basicInfo: ThreadBasicInfo?,
+    ): List<ThreadPostInfo> {
+        val comments =
+            parsePostInfoList(postBean.comment, basicInfo, postBean.comment.size)
+        return comments
+    }
+
+    private fun parsePageInfo(pageBean: ThreadPageBean?): ThreadPageInfo? {
+        if (pageBean == null) {
+            return null
+        }
+        return ThreadPageInfo().apply {
+            tid = pageBean.tid
+            fid = pageBean.fid
+            authorId = pageBean.authorid
+            subject = pageBean.subject
+        }
+    }
+
 
     private fun parseBasicInfo(globalStr: String?): ThreadBasicInfo? {
         if (globalStr == null) {
@@ -60,37 +180,8 @@ object ThreadInfoParse {
     }
 
     fun parseUserInfo(
-        threadBean: ThreadBean,
-        postInfo: ThreadPostInfo,
-    ) {
-        val userBean = JSON.parseObject(
-            threadBean.__U[postInfo.authorId.toString()],
-            ThreadUserBean::class.java
-        )
-        if (userBean == null) {
-            return
-        }
-        parseUserState(postInfo, userBean, threadBean.__T)
-
-        postInfo.apply {
-            avatarUrl = ForumParsekUtils.parseAvatarUrl(userBean.avatar)
-            val groupObj = JSON.parseObject(threadBean.__U["__GROUPS"])
-            memberGroup = groupObj.getJSONObject(userBean.memberid).getString("0")
-            postCount = userBean.postnum;
-            reputation = userBean.rvrc?.toFloatOrNull()?.div(10.0f) ?: 0f
-            author = if (isAnonymous) {
-                parseAnonymousName(userBean.username)
-            } else {
-                userBean.username
-            }
-            signature = userBean.signature
-        }
-    }
-
-    fun parseUserState(
         postInfo: ThreadPostInfo,
         userBean: ThreadUserBean,
-        pageInfo: ThreadPageInfo?,
     ) {
         val buffs = userBean.buffs
         val yz = userBean.yz
@@ -101,13 +192,26 @@ object ThreadInfoParse {
             postInfo.isMuted = true
         }
 
-        val userName = userBean.nickname
+        val userName = userBean.username
         if (userName.length == 39 && userName.startsWith("#anony_")) {
             postInfo.isAnonymous = true
         }
 
-        if (pageInfo?.authorid == userBean.uid) {
+        if (threadBean!!.__T?.authorid == userBean.uid) {
             postInfo.isThreadAuthor = true
+        }
+        postInfo.apply {
+            avatarUrl = ForumParsekUtils.parseAvatarUrl(userBean.avatar)
+            val groupObj = JSON.parseObject(threadBean!!.__U["__GROUPS"])
+            memberGroup = groupObj.getJSONObject(userBean.memberid).getString("0")
+            postCount = userBean.postnum;
+            reputation = userBean.rvrc?.toFloatOrNull()?.div(10.0f) ?: 0f
+            author = if (isAnonymous) {
+                parseAnonymousName(userBean.username)
+            } else {
+                userBean.username
+            }
+            signature = userBean.signature
         }
 
     }
@@ -160,18 +264,18 @@ object ThreadInfoParse {
             var pos: Int
             if (j == 0 || j == 3) {
                 pos = userName.substring(i + 1, i + 2).toInt(16)
-                builder.append(t1.get(pos))
+                builder.append(t1[pos])
             } else {
                 pos = userName.substring(i, i + 2).toInt(16)
-                builder.append(t2.get(pos))
+                builder.append(t2[pos])
             }
             i += 2
         }
         return builder.toString()
     }
 
-    fun parseThreadPostInfo(row: ThreadPostBean): ThreadPostInfo {
-        return ThreadPostInfo().apply {
+    fun parseThreadPostInfo(row: ThreadPostBean, userBean: ThreadUserBean): ThreadPostInfo {
+        val postInfo = ThreadPostInfo().apply {
             tid = row.tid
             pid = row.pid
             fid = row.fid
@@ -179,14 +283,18 @@ object ThreadInfoParse {
             clientModel = parseClientModel(row)
             lou = row.lou
             vote = row.vote
-            subject = row.subject
             postDate = row.postdate
             alterInfo = row.alterinfo
-            rawContent = row.content ?: row.subject
+            if (row.content.isNullOrEmpty()) {
+                rawContent = row.subject
+            } else {
+                rawContent = row.content
+                subject = row.subject
+            }
             score = row.score
         }
-
-
+        parseUserInfo(postInfo, userBean)
+        return postInfo
     }
 
 }

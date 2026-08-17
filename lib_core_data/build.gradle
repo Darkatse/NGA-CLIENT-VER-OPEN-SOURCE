@@ -31,8 +31,5 @@ android {
 }
 
 dependencies {
-    implementation libs.annotation
-    testImplementation 'junit:junit:4.13.2'
     implementation project(':lib_base_common')
-
 }

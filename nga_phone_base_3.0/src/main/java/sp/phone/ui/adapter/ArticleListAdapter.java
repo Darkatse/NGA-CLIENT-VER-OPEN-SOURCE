@@ -293,7 +293,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        ThreadPostInfo row = mData.threadPostList.get(position);
+        ThreadPostInfo row = mData.postInfoList.get(position);
         return TextUtils.isEmpty(row.formatHtml) ? VIEW_TYPE_NATIVE_VIEW : VIEW_TYPE_WEB_VIEW;
     }
 
@@ -325,7 +325,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ArticleViewHolder holder, final int position) {
 
-        final ThreadPostInfo row = mData.threadPostList.get(position);
+        final ThreadPostInfo row = mData.postInfoList.get(position);
 
         if (row == null) {
             return;
@@ -422,7 +422,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     @Override
     public int getItemCount() {
-        return mData == null ? 0 : mData.rowNum;
+        return mData == null ? 0 : mData.postInfoList.size();
     }
 
     private void onBindAvatarView(ImageView avatarIv, ThreadPostInfo row) {

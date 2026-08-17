@@ -1,5 +1,6 @@
 package com.client.androidnga.core.data.model
 
+import com.client.androidnga.core.data.html.AttachmentData
 import gov.anzong.androidnga.common.base.JavaBean
 
 class ThreadInfo : JavaBean {
@@ -8,28 +9,18 @@ class ThreadInfo : JavaBean {
     var pageInfo: ThreadPageInfo? = null
 
     @JvmField
-    var threadPostList = mutableListOf<ThreadPostInfo>()
+    var postInfoList: List<ThreadPostInfo> = emptyList()
 
     @JvmField
     var basicInfo: ThreadBasicInfo? = null
 
-    private var __ROWS = 0
-
     @JvmField
-    var rowNum: Int = 0
+    var totalRows: Int = 0
 
     /**
      * 从服务端获取的原始数据
      */
     var rawData: String? = null
-
-    fun get__ROWS(): Int {
-        return __ROWS
-    }
-
-    fun set__ROWS(__ROWS: Int) {
-        this.__ROWS = __ROWS
-    }
 
 }
 
@@ -159,7 +150,16 @@ class ThreadPostInfo : JavaBean {
      * 是否是评论
      */
     @JvmField
-    var isComment  =  false
+    var isComment = false
+
+    @JvmField
+    var comments = mutableListOf<ThreadPostInfo>()
+
+    /**
+     * 附件信息
+     */
+    @JvmField
+    var attachInfo: List<AttachmentData> = emptyList()
 }
 
 enum class ClientModel(val modelName: String) {
