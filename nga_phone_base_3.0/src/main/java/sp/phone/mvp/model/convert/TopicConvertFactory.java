@@ -35,6 +35,9 @@ public class TopicConvertFactory {
             js = js.substring("window.script_muti_get_var_store=".length());
         }
 
+        // 去掉 jdata 字段，值可能包含转义引号、\x5C 等非法转义导致解析失败，且该字段无实际用途
+        js = js.replaceAll("\"jdata\":\"(?:\\\\.|[^\"\\\\])*\",", "");
+
         TopicListBean topicListBean = JSON.parseObject(js, TopicListBean.class);
 
         try {
@@ -46,7 +49,7 @@ public class TopicConvertFactory {
             sort(listInfo);
             filter(listInfo);
             return listInfo;
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             NLog.e(TAG, "can not parse :\n" + js);
             return null;
         }
