@@ -12,6 +12,7 @@ public class PreferenceKey {
 
     @Deprecated
     public static final String PERFERENCE = PreferenceManager.getDefaultSharedPreferencesName(ContextUtils.getContext());
+    public static final String BOARD_ICON_URL = "board_icon_url";
 
     String DOWNLOAD_IMG_QUALITY_NO_WIFI = "download_img_quality_without_wifi";
     public static final String ENABLE_NOTIFIACTION = "enableNotification";

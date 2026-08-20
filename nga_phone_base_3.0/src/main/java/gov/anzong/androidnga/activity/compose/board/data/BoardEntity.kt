@@ -10,6 +10,9 @@ class BoardEntity : JavaBean {
 
     var id: String = ""
 
+    @JvmField
+    var iconUrl: String = ""
+
     // 父板块id
     @JSONField(serialize = false)
     var parentId: String? = null

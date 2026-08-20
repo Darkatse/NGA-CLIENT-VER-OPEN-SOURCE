@@ -117,12 +117,7 @@ private fun ForumBoardGridItemView(
 }
 
 private fun getResUrl(board: BoardEntity): String {
-    val url = if (board.stid != 0) {
-        String.format(ApiConstants.URL_BOARD_ICON_STID, board.stid)
-    } else {
-        String.format(ApiConstants.URL_BOARD_ICON, board.fid)
-    }
-    return url
+    return board.iconUrl
 }
 
 
