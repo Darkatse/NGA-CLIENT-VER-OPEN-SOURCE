@@ -84,12 +84,12 @@ class ThreadInfoParse() {
             if (row.comment.isNotEmpty()) {
                 postInfo.comments.addAll(parseCommentInfo(row, basicInfo))
             }
+            postInfo.isBlocked = parseConfig?.isBlocked(authorId.toString()) ?: false
             postInfo.formatHtml = HtmlConvertFactory.convert(
                 postInfo,
                 basicInfo,
                 parseConfig
             )
-            postInfo.isBlocked = parseConfig?.isBlocked(authorId.toString()) ?: false
             postInfo.attachInfo = parsePostAttachInfo(row)
             postInfo.isComment = isComment(postInfo, row)
             postInfoList.add(postInfo)

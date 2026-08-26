@@ -34,6 +34,10 @@ public class ArticleCacheActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         setToolbarEnabled(true);
         mRequestParam = getIntent().getParcelableExtra(ParamKey.KEY_PARAM);
+        if (mRequestParam == null) {
+            finish();
+            return;
+        }
         setTitle(mRequestParam.title);
         super.onCreate(savedInstanceState);
         loadCachePageList(String.valueOf(mRequestParam.tid));

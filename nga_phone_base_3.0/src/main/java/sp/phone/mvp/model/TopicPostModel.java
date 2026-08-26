@@ -8,6 +8,7 @@ import android.os.ParcelFileDescriptor;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
 import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import org.apache.commons.io.IOUtils;
@@ -221,7 +222,7 @@ public class TopicPostModel extends BaseModel implements TopicPostContract.Model
                     public void onNext(String s) {
                         try {
                             s = s.replace("window.script_muti_get_var_store=", "");
-                            JSONObject object = JSON.parseObject(s);
+                            JSONObject object = JSON.parseObject(s, JSONReader.Feature.AllowUnQuotedFieldNames);
                             if (object.containsKey("error_code")) {
                                 int errorCode = object.getInteger("error_code");
                                 if (errorCode == 9 && !compress) {
