@@ -1,10 +1,10 @@
 package sp.phone.mvp.presenter;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
 
+import com.client.androidnga.core.data.model.ThreadInfo;
 import com.client.androidnga.core.data.model.ThreadPostInfo;
 import com.justwen.androidnga.base.activity.ARouterConstants;
 
@@ -13,12 +13,12 @@ import java.util.Map;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.activity.fragment.ForumWebFragment;
+import gov.anzong.androidnga.base.util.ContextUtils;
+import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
-import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.common.UserManager;
 import sp.phone.common.UserManagerImpl;
-import com.client.androidnga.core.data.model.ThreadInfo;
 import sp.phone.mvp.contract.ArticleListContract;
 import sp.phone.mvp.model.ArticleListModel;
 import sp.phone.param.ArticleListParam;
@@ -44,6 +44,8 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
     private final Map<String, String> mHeaderMap = new ArrayMap<>();
 
+    private boolean mUserCompatMode = false;
+
     private class ArticleCallback implements OnHttpCallBack<ThreadInfo> {
         @Override
         public void onError(String text) {
@@ -56,9 +58,15 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
         @Override
         public void onError(String msg, Throwable t) {
-            onError(msg);
-            if (t instanceof ArticleListModel.ServerException) {
-                showWithWebView();
+            if (mBaseView != null && t instanceof ArticleListModel.ServerException) {
+                if (PreferenceUtils.getData(ContextUtils.getString(gov.anzong.androidnga.common.R.string.pref_show_with_app_api), false)) {
+                    mBaseModel.loadPageWithAppApi(mRequestParam, mHeaderMap,  mAppApiCallback);
+                } else if (PreferenceUtils.getData(ContextUtils.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
+                    onError(msg);
+                    showWithWebView();
+                }
+            } else {
+                onError(msg);
             }
         }
 
@@ -90,6 +98,26 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         }
     }
 
+    private final OnHttpCallBack<ThreadInfo> mAppApiCallback = new ArticleCallback() {
+        @Override
+        public void onError(String msg, Throwable t) {
+            if (mBaseView == null) {
+                return;
+            }
+            onError(msg);
+            if (PreferenceUtils.getData(ContextUtils.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
+                showWithWebView();
+            }
+        }
+
+        @Override
+        public void onSuccess(ThreadInfo data) {
+            mUserCompatMode = true;
+            ToastUtils.success("使用兼容模式打开");
+            super.onSuccess(data);
+        }
+    };
+
     private final OnHttpCallBack<ThreadInfo> mRetryCallback = new RetryCallback();
 
     private final OnHttpCallBack<ThreadInfo> mDataCallBack = new ArticleCallback();
@@ -103,8 +131,9 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         if (mBaseView == null) {
             return false;
         }
+        int userCount = UserManagerImpl.getInstance().getUserSize();
         String cookie = UserManagerImpl.getInstance().getNextCookie();
-        if (cookie == null) {
+        if (userCount < 2 || cookie == null) {
             return false;
         }
         Map<String, String> header = new ArrayMap<>();
@@ -116,13 +145,14 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     @Override
     public void loadPage(ArticleListParam param) {
         mBaseView.setRefreshing(true);
-        mBaseModel.loadPage(param, mHeaderMap, mRetryCallback);
+        if (mUserCompatMode) {
+            mBaseModel.loadPageWithAppApi(param, mHeaderMap, mAppApiCallback);
+        } else {
+            mBaseModel.loadPage(param, mHeaderMap, mRetryCallback);
+        }
     }
 
     private void showWithWebView() {
-        if (mBaseView == null || !mBaseView.getContext().getSharedPreferences(PreferenceKey.PERFERENCE, Context.MODE_PRIVATE).getBoolean(mBaseView.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
-            return;
-        }
         ARouterUtils.build(ARouterConstants.ACTIVITY_FRAGMENT_TEMPLATE)
                 .withString("url", getCurrentUrl())
                 .withString("title", mRequestParam.title)

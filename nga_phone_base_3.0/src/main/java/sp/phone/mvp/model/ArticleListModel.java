@@ -3,6 +3,7 @@ package sp.phone.mvp.model;
 import android.text.TextUtils;
 
 import com.client.androidnga.core.parse.ForumParsekUtils;
+import com.client.androidnga.core.parse.ThreadInfoAppParse;
 import com.client.androidnga.core.parse.ThreadInfoParse;
 import com.trello.rxlifecycle2.android.FragmentEvent;
 
@@ -10,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import gov.anzong.androidnga.base.logger.Logger;
@@ -73,6 +75,47 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
     @Override
     public void loadPage(ArticleListParam param, final OnHttpCallBack<ThreadInfo> callBack) {
         loadPage(param, null, callBack);
+    }
+
+    public void loadPageWithAppApi(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadInfo> callBack) {
+        String appApiUrl = getAvailableDomain() + "/app_api.php?__lib=post&__act=list";
+        Map<String, String> appApiFields = new HashMap<>();
+        appApiFields.put("page", String.valueOf(param.page));
+        if (param.tid != 0) {
+            appApiFields.put("tid", String.valueOf(param.tid));
+        }
+        if (param.pid != 0) {
+            appApiFields.put("pid", String.valueOf(param.pid));
+        }
+        if (param.authorId != 0) {
+            appApiFields.put("authorid", String.valueOf(param.authorId));
+        }
+        mService.post(appApiUrl, header, appApiFields).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .compose(getLifecycleProvider().bindUntilEvent(FragmentEvent.DETACH))
+                .map(s -> {
+                    ThreadInfo data = ThreadInfoAppParse.parse(s, new HtmlConfigService());;
+                    if (data == null) {
+                        throw new ServerException("NGA后台抽风了，请尝试右上角菜单中的使用内置浏览器打开");
+                    } else {
+                        return data;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(getLifecycleProvider().bindUntilEvent(FragmentEvent.DETACH))
+                .subscribe(new BaseSubscriber<>() {
+
+                    @Override
+                    public void onNext(@NonNull ThreadInfo threadData) {
+                        callBack.onSuccess(threadData);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable throwable) {
+                        throwable.printStackTrace();
+                        callBack.onError(throwable.getMessage(), throwable);
+                    }
+                });
     }
 
     @Override

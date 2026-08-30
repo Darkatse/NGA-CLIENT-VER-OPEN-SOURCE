@@ -72,4 +72,10 @@ public interface RetrofitService {
     @GET
     Observable<String> get(@Url String url, @HeaderMap Map<String,String> map);
 
+
+    @FormUrlEncoded
+    @POST
+    Observable<String> post(@Url String url, @HeaderMap Map<String, String> headers,
+                            @FieldMap Map<String, String> fieldMap);
+
 }
