@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
+import com.justwent.androidnga.bu.UserManager
 import gov.anzong.androidnga.R
 import gov.anzong.androidnga.base.util.ContextUtils
 import gov.anzong.androidnga.core.board.data.BoardEntity
@@ -116,12 +117,7 @@ private fun ForumBoardGridItemView(
 }
 
 private fun getResUrl(board: BoardEntity): String {
-    val url = if (board.stid != 0) {
-        String.format(ApiConstants.URL_BOARD_ICON_STID, board.stid)
-    } else {
-        String.format(ApiConstants.URL_BOARD_ICON, board.fid)
-    }
-    return url
+    return board.iconUrl
 }
 
 
@@ -140,18 +136,26 @@ private fun getResId(board: BoardEntity): Int {
 fun ForumBoardBookmarkContent(bookmark: BoardEntity, forumBoardViewModel: ForumBoardViewModel) {
     val bookmarkSize by forumBoardViewModel.bookmarkSizeLiveData.observeAsState()
     val maxColumn = 3
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(maxColumn),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 8.dp, end = 8.dp)
-    ) {
-        items(bookmarkSize!!) { index ->
-            ForumBoardGridItemView(bookmark.children!![index], forumBoardViewModel)
+
+    Column (Modifier.fillMaxSize()) {
+
+        if (UserManager.getUserList().size == 1) {
+            Text(modifier = Modifier.padding(8.dp), text = "建议登录多个账号，可有效改善跳转系统浏览器问题")
         }
-        item(span = { GridItemSpan(maxColumn) }) {
-            val paddingValues = WindowInsets.navigationBars.asPaddingValues()
-            Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(maxColumn),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 8.dp, end = 8.dp)
+        ) {
+            items(bookmarkSize!!) { index ->
+                ForumBoardGridItemView(bookmark.children!![index], forumBoardViewModel)
+            }
+            item(span = { GridItemSpan(maxColumn) }) {
+                val paddingValues = WindowInsets.navigationBars.asPaddingValues()
+                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+            }
         }
     }
 }

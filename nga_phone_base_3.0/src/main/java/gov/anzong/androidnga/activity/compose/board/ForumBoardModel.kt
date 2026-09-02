@@ -1,6 +1,6 @@
 package gov.anzong.androidnga.activity.compose.board
 
-import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson2.JSON
 import gov.anzong.androidnga.base.util.ContextUtils
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import gov.anzong.androidnga.base.utils.ThreadProvider
@@ -11,6 +11,10 @@ import java.util.Collections
 
 class ForumBoardModel {
 
+    companion object{
+        const val ICON_URL_DEFAULT = "http://img4.nga.cn/ngabbs/nga_classic/f/app/"
+    }
+
     private val boardList: MutableList<BoardEntity> = mutableListOf()
 
     private val boardMap: HashMap<String, BoardEntity> = HashMap()
@@ -19,16 +23,35 @@ class ForumBoardModel {
 
     val bookmarkBoard: BoardEntity
 
+    private var iconUrl: String = ""
+
+    private var iconUrlStid: String = ""
+
     init {
         val context = ContextUtils.getContext()
         bookmarkBoard = ForumBoardRepository.loadBookmarkBoardList(context)
         localBoardList = ForumBoardRepository.loadLocalBoardList(context)
         boardList.add(bookmarkBoard)
         boardList.addAll(localBoardList)
+        initIconUrlHost()
         boardList.forEach {
             initBoardMap(it, null)
         }
         transferBookmarkBoards()
+    }
+
+    private fun initIconUrlHost() {
+        val baseUrl = PreferenceUtils.getData(PreferenceKey.BOARD_ICON_URL, ICON_URL_DEFAULT)
+        iconUrl = "$baseUrl%s.png"
+        iconUrlStid = baseUrl.replace("/ngabbs/nga_classic/f/app/", "/proxy/cache_attach/ficon/") + "%sv.png"
+    }
+
+    private fun initIconUrl(boardEntity: BoardEntity) {
+        if (boardEntity.stid != 0) {
+            boardEntity.iconUrl = String.format(iconUrlStid, boardEntity.stid)
+        } else if (boardEntity.fid != 0) {
+            boardEntity.iconUrl = String.format(iconUrl, boardEntity.fid)
+        }
     }
 
     private fun initBoardMap(boardEntity: BoardEntity, parent: BoardEntity? = null) {
@@ -37,6 +60,7 @@ class ForumBoardModel {
             id = generateBoardId(fid, stid, parentId) ?: id
         }
         boardMap[boardEntity.id] = boardEntity
+        initIconUrl(boardEntity)
         boardEntity.children?.let {
             it.forEach { data ->
                 initBoardMap(data, boardEntity)
@@ -164,21 +188,26 @@ class ForumBoardModel {
     suspend fun loadIncrementalBoardList(): List<BoardEntity> {
         val forumsListBean = ForumBoardRepository.requestRemoteBoardList(ContextUtils.getContext())
         val addChildList: MutableList<BoardEntity> = mutableListOf()
-        forumsListBean?.result?.forEach {
-            if (it.id == "other" || it.id == "wow" || it.id == "company") {
-                it.groups?.forEach { it ->
-                    val groupId = it.id
-                    it.forums?.forEach { child ->
-                        generateBoardId(child.id, child.stid)?.let { it ->
-                            if (!boardMap.contains(it)) {
-                                val boardEntity = BoardEntity().apply {
-                                    id = it
-                                    fid = child.id
-                                    stid = child.stid
-                                    parentId = groupId
-                                    name = child.name!!
+        forumsListBean?.let {
+            if (!it.forum_icon_pre.isNullOrEmpty()) {
+                PreferenceUtils.putData(PreferenceKey.BOARD_ICON_URL, it.forum_icon_pre)
+            }
+            it.result?.forEach {
+                if (it.id == "other" || it.id == "wow" || it.id == "company") {
+                    it.groups?.forEach { it ->
+                        val groupId = it.id
+                        it.forums?.forEach { child ->
+                            generateBoardId(child.id, child.stid)?.let { it ->
+                                if (!boardMap.contains(it)) {
+                                    val boardEntity = BoardEntity().apply {
+                                        id = it
+                                        fid = child.id
+                                        stid = child.stid
+                                        parentId = groupId
+                                        name = child.name!!
+                                    }
+                                    addChildList.add(boardEntity)
                                 }
-                                addChildList.add(boardEntity)
                             }
                         }
                     }
@@ -189,10 +218,14 @@ class ForumBoardModel {
     }
 
     fun mergeBoardList(addChildList: List<BoardEntity>) {
+        initIconUrlHost()
         addChildList.forEach {
             boardMap[it.id] = it
             val parent = boardMap[it.parentId]
             parent?.children?.add(it)
+        }
+        boardMap.values.forEach {
+            initIconUrl(it)
         }
         saveData()
     }
@@ -200,7 +233,7 @@ class ForumBoardModel {
     private fun saveData() {
         ThreadProvider.runOnSingleThread {
             ForumBoardRepository.writeLocalBoardList(
-                ContextUtils.getContext(), localBoardList.toList()
+                ContextUtils.getContext(), boardMap.values.toList()
             )
         }
     }

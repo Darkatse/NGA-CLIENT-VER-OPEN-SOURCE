@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 
 /**
  * Created by Justwen on 2018/8/25.

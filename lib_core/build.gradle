@@ -39,5 +39,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
 
     implementation(libs.fastjson2)
+    implementation(libs.kotlin.reflect)
+    
+    implementation project(':lib_core_data')
 
 }

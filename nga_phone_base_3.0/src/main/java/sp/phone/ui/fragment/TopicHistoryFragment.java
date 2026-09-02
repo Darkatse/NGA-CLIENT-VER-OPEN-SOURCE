@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import gov.anzong.androidnga.base.widget.DividerItemDecorationEx;
 import gov.anzong.androidnga.common.ui.dialog.ConfirmDialog;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.TopicHistoryManager;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;

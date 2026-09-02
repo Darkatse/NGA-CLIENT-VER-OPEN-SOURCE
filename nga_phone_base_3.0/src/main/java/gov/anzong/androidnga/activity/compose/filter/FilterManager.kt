@@ -1,10 +1,10 @@
 package gov.anzong.androidnga.activity.compose.filter
 
-import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson2.JSON
 import gov.anzong.androidnga.base.kv.DataStore
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import sp.phone.common.User
-import sp.phone.mvp.model.entity.ThreadPageInfo
+import com.client.androidnga.core.data.model.ThreadPageInfo
 
 object FilterManager {
 
@@ -97,7 +97,7 @@ object FilterManager {
         }
     }
 
-    private fun filterWord(subject: String): Boolean {
+    private fun filterWord(subject: String?): Boolean {
         for (keyword in wordFilterList) {
             if (keyword.match(subject)) {
                 return true
@@ -106,7 +106,7 @@ object FilterManager {
         return false
     }
 
-    fun filterUserByName(author: String): Boolean {
+    fun filterUserByName(author: String?): Boolean {
         for (user in userFilterList) {
             if (author == user.nickName) {
                 return true

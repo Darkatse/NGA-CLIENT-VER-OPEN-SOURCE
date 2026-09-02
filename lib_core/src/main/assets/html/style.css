@@ -45,3 +45,10 @@ img {
 
 img.invertFilter {
 }
+
+video {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

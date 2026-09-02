@@ -10,6 +10,7 @@ class ForumsListBean : JavaBean {
     var code: Int = 0
     var msg: String? = null
     var result: ArrayList<Result>? = null
+    var forum_icon_pre : String? = null
 
     class Result : JavaBean {
         var id: String? = null

@@ -10,7 +10,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import gov.anzong.androidnga.R
 import gov.anzong.androidnga.base.util.ToastUtils
 import gov.anzong.androidnga.base.widget.DividerItemDecorationEx
-import sp.phone.mvp.model.entity.ThreadPageInfo
+import com.client.androidnga.core.data.model.ThreadPageInfo
 import sp.phone.mvp.presenter.TopicListPresenter
 import sp.phone.param.ParamKey
 import sp.phone.param.TopicListParam

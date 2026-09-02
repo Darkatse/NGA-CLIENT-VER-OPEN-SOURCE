@@ -2,30 +2,35 @@ package sp.phone.mvp.model;
 
 import android.text.TextUtils;
 
+import com.client.androidnga.core.parse.ForumParsekUtils;
+import com.client.androidnga.core.parse.ThreadInfoAppParse;
+import com.client.androidnga.core.parse.ThreadInfoParse;
 import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import gov.anzong.androidnga.base.logger.Logger;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.ThreadUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.http.OnHttpCallBack;
+import gov.anzong.androidnga.service.HtmlConfigService;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadData;
+
+import com.client.androidnga.core.data.model.ThreadInfo;
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwen.androidnga.base.network.retrofit.RetrofitService;
 import sp.phone.mvp.contract.ArticleListContract;
-import sp.phone.mvp.model.convert.ArticleConvertFactory;
 import sp.phone.mvp.model.convert.ErrorConvertFactory;
 import sp.phone.param.ArticleListParam;
 import sp.phone.rxjava.BaseSubscriber;
@@ -68,25 +73,66 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
     }
 
     @Override
-    public void loadPage(ArticleListParam param, final OnHttpCallBack<ThreadData> callBack) {
+    public void loadPage(ArticleListParam param, final OnHttpCallBack<ThreadInfo> callBack) {
         loadPage(param, null, callBack);
     }
 
+    public void loadPageWithAppApi(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadInfo> callBack) {
+        String appApiUrl = getAvailableDomain() + "/app_api.php?__lib=post&__act=list";
+        Map<String, String> appApiFields = new HashMap<>();
+        appApiFields.put("page", String.valueOf(param.page));
+        if (param.tid != 0) {
+            appApiFields.put("tid", String.valueOf(param.tid));
+        }
+        if (param.pid != 0) {
+            appApiFields.put("pid", String.valueOf(param.pid));
+        }
+        if (param.authorId != 0) {
+            appApiFields.put("authorid", String.valueOf(param.authorId));
+        }
+        mService.post(appApiUrl, header, appApiFields).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .compose(getLifecycleProvider().bindUntilEvent(FragmentEvent.DETACH))
+                .map(s -> {
+                    ThreadInfo data = ThreadInfoAppParse.parse(s, new HtmlConfigService());;
+                    if (data == null) {
+                        throw new ServerException("NGA后台抽风了，请尝试右上角菜单中的使用内置浏览器打开");
+                    } else {
+                        return data;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(getLifecycleProvider().bindUntilEvent(FragmentEvent.DETACH))
+                .subscribe(new BaseSubscriber<>() {
+
+                    @Override
+                    public void onNext(@NonNull ThreadInfo threadData) {
+                        callBack.onSuccess(threadData);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable throwable) {
+                        throwable.printStackTrace();
+                        callBack.onError(throwable.getMessage(), throwable);
+                    }
+                });
+    }
+
     @Override
-    public void loadPage(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadData> callBack) {
+    public void loadPage(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadInfo> callBack) {
         String url = getUrl(param);
         mService.get(url, header)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())
                 .compose(getLifecycleProvider().<String>bindUntilEvent(FragmentEvent.DETACH))
-                .map(new Function<String, ThreadData>() {
+                .map(new Function<String, ThreadInfo>() {
                     @Override
-                    public ThreadData apply(@NonNull String s) throws Exception {
+                    public ThreadInfo apply(@NonNull String s) throws Exception {
                         long time = System.currentTimeMillis();
-                        ThreadData data = ArticleConvertFactory.getArticleInfo(s);
+                        ThreadInfo data = getThreadInfo(s);
                         NLog.e(TAG, "time = " + (System.currentTimeMillis() - time));
                         if (data == null) {
-                            String errorMsg = ErrorConvertFactory.getErrorMessage(s);
+                            String errorMsg = ForumParsekUtils.parseErrorMsg(s);
                             if (errorMsg != null) {
                                 throw new Exception(errorMsg);
                             } else {
@@ -98,11 +144,11 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(getLifecycleProvider().<ThreadData>bindUntilEvent(FragmentEvent.DETACH))
-                .subscribe(new BaseSubscriber<ThreadData>() {
+                .compose(getLifecycleProvider().<ThreadInfo>bindUntilEvent(FragmentEvent.DETACH))
+                .subscribe(new BaseSubscriber<ThreadInfo>() {
 
                     @Override
-                    public void onNext(@NonNull ThreadData threadData) {
+                    public void onNext(@NonNull ThreadInfo threadData) {
                         callBack.onSuccess(threadData);
                     }
 
@@ -136,13 +182,13 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
     }
 
     @Override
-    public void loadCachePage(ArticleListParam param, OnHttpCallBack<ThreadData> callBack) {
-        Observable.create((ObservableOnSubscribe<ThreadData>) emitter -> {
+    public void loadCachePage(ArticleListParam param, OnHttpCallBack<ThreadInfo> callBack) {
+        Observable.create((ObservableOnSubscribe<ThreadInfo>) emitter -> {
             String cachePath = ContextUtils.getContext().getFilesDir().getAbsolutePath()
                     + "/cache/" + param.tid + "/" + param.page + ".json";
             File cacheFile = new File(cachePath);
             String rawData = FileUtils.readFileToString(cacheFile);
-            ThreadData threadData = ArticleConvertFactory.getArticleInfo(rawData);
+            ThreadInfo threadData = getThreadInfo(rawData);
             if (threadData != null) {
                 emitter.onNext(threadData);
             } else {
@@ -150,9 +196,9 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
             }
             emitter.onComplete();
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BaseSubscriber<ThreadData>() {
+                .subscribe(new BaseSubscriber<ThreadInfo>() {
                     @Override
-                    public void onNext(ThreadData threadData) {
+                    public void onNext(ThreadInfo threadData) {
                         callBack.onSuccess(threadData);
                     }
 
@@ -161,6 +207,16 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
                         callBack.onError("读取缓存失败！");
                     }
                 });
+    }
+
+    private ThreadInfo getThreadInfo(String js) {
+        try {
+            return ThreadInfoParse.parse(js, new HtmlConfigService());
+        } catch (Exception e) {
+            NLog.e(TAG, "can not parse :\n" + js);
+            Logger.d(e);
+        }
+        return null;
     }
 
     public static class ServerException extends Exception {

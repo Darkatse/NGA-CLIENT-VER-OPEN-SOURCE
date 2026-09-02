@@ -2,23 +2,20 @@ package sp.phone.mvp.model.convert;
 
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import gov.anzong.androidnga.activity.compose.filter.FilterManager;
-import gov.anzong.androidnga.activity.compose.filter.FilterKeyword;
 import sp.phone.common.PhoneConfiguration;
-import sp.phone.common.User;
 import sp.phone.http.bean.TopicListBean;
 import sp.phone.mvp.model.entity.SubBoard;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import gov.anzong.androidnga.common.util.ForumUtils;
 import gov.anzong.androidnga.common.util.NLog;
@@ -38,6 +35,9 @@ public class TopicConvertFactory {
             js = js.substring("window.script_muti_get_var_store=".length());
         }
 
+        // 去掉 jdata 字段，值可能包含转义引号、\x5C 等非法转义导致解析失败，且该字段无实际用途
+        js = js.replaceAll("\"jdata\":\"(?:\\\\.|[^\"\\\\])*\",", "");
+
         TopicListBean topicListBean = JSON.parseObject(js, TopicListBean.class);
 
         try {
@@ -49,7 +49,7 @@ public class TopicConvertFactory {
             sort(listInfo);
             filter(listInfo);
             return listInfo;
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             NLog.e(TAG, "can not parse :\n" + js);
             return null;
         }

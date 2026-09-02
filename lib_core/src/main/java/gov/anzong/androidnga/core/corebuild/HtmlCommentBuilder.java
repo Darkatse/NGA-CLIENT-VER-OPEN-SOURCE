@@ -3,8 +3,8 @@ package gov.anzong.androidnga.core.corebuild;
 import android.text.TextUtils;
 
 import gov.anzong.androidnga.common.util.FileUtils;
-import gov.anzong.androidnga.core.data.CommentData;
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.CommentData;
+import com.client.androidnga.core.data.html.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 
 /**

@@ -29,4 +29,11 @@
         android:title="自动签到"
         android:iconSpaceReserved="false" />
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_show_with_app_api"
+        android:summary="尝试解决自动跳转浏览器问题"
+        android:iconSpaceReserved="false"
+        android:title="帖子详情兼容模式" />
+
 </PreferenceScreen>

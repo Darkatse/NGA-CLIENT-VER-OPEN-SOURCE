@@ -6,8 +6,9 @@ import android.os.Bundle;
 import java.util.Map;
 
 import gov.anzong.androidnga.http.OnHttpCallBack;
-import sp.phone.http.bean.ThreadData;
-import sp.phone.http.bean.ThreadRowInfo;
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.model.ThreadPostInfo;
+
 import sp.phone.param.ArticleListParam;
 
 /**
@@ -22,15 +23,15 @@ public interface ArticleListContract {
 
         void loadPage(ArticleListParam param);
 
-        void banThisSB(ThreadRowInfo row);
+        void banThisSB(ThreadPostInfo row);
 
-        void postComment(ArticleListParam param, ThreadRowInfo row);
+        void postComment(ArticleListParam param, ThreadPostInfo row);
 
         void postSupportTask(int tid, int pid);
 
         void postOpposeTask(int tid, int pid);
 
-        void quote(ArticleListParam param, ThreadRowInfo row);
+        void quote(ArticleListParam param, ThreadPostInfo row);
 
         void cachePage();
 
@@ -45,7 +46,7 @@ public interface ArticleListContract {
 
         void hideLoadingView();
 
-        void setData(ThreadData data);
+        void setData(ThreadInfo data);
 
         void startPostActivity(Intent intent);
 
@@ -55,12 +56,12 @@ public interface ArticleListContract {
 
     interface Model {
 
-        void loadPage(ArticleListParam param, OnHttpCallBack<ThreadData> callBack);
+        void loadPage(ArticleListParam param, OnHttpCallBack<ThreadInfo> callBack);
 
-        void loadPage(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadData> callBack);
+        void loadPage(ArticleListParam param, Map<String, String> header, OnHttpCallBack<ThreadInfo> callBack);
 
         void cachePage(ArticleListParam param, String rawData);
 
-        void loadCachePage(ArticleListParam param, OnHttpCallBack<ThreadData> callBack);
+        void loadCachePage(ArticleListParam param, OnHttpCallBack<ThreadInfo> callBack);
     }
 }

@@ -2,7 +2,7 @@ package gov.anzong.androidnga.core.corebuild;
 
 import java.util.List;
 
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 
 public interface IHtmlBuild {
 

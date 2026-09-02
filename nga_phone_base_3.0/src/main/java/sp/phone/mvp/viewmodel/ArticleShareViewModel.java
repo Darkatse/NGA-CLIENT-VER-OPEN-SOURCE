@@ -15,8 +15,6 @@ public class ArticleShareViewModel extends ViewModel {
 
     private MutableLiveData<Integer> mCachePage = new MutableLiveData<>();
 
-    private MutableLiveData<String> mTopicOwner = new MutableLiveData<>();
-
     public MutableLiveData<Integer> getReplyCount() {
         return mReplyCount;
     }
@@ -41,11 +39,4 @@ public class ArticleShareViewModel extends ViewModel {
         mCachePage.setValue(cachePage);
     }
 
-    public LiveData<String> getTopicOwner() {
-        return mTopicOwner;
-    }
-
-    public void setTopicOwner(String owner) {
-        mTopicOwner.setValue(owner);
-    }
 }

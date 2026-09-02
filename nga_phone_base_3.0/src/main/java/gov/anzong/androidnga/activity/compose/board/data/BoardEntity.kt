@@ -1,7 +1,7 @@
 package gov.anzong.androidnga.core.board.data
 
 import androidx.annotation.IntDef
-import com.alibaba.fastjson.annotation.JSONField
+import com.alibaba.fastjson2.annotation.JSONField
 import gov.anzong.androidnga.common.base.JavaBean
 
 class BoardEntity : JavaBean {
@@ -9,6 +9,9 @@ class BoardEntity : JavaBean {
     lateinit var name: String
 
     var id: String = ""
+
+    @JvmField
+    var iconUrl: String = ""
 
     // 父板块id
     @JSONField(serialize = false)

@@ -1,10 +1,11 @@
 package sp.phone.mvp.presenter;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
 
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.model.ThreadPostInfo;
 import com.justwen.androidnga.base.activity.ARouterConstants;
 
 import java.util.Map;
@@ -12,13 +13,12 @@ import java.util.Map;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.activity.fragment.ForumWebFragment;
+import gov.anzong.androidnga.base.util.ContextUtils;
+import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
-import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.common.UserManager;
 import sp.phone.common.UserManagerImpl;
-import sp.phone.http.bean.ThreadData;
-import sp.phone.http.bean.ThreadRowInfo;
 import sp.phone.mvp.contract.ArticleListContract;
 import sp.phone.mvp.model.ArticleListModel;
 import sp.phone.param.ArticleListParam;
@@ -38,13 +38,15 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
     private LikeTask mLikeTask;
 
-    private ThreadData mThreadData;
+    private ThreadInfo mThreadData;
 
     private ArticleListParam mRequestParam;
 
     private final Map<String, String> mHeaderMap = new ArrayMap<>();
 
-    private class ArticleCallback implements OnHttpCallBack<ThreadData> {
+    private boolean mUserCompatMode = false;
+
+    private class ArticleCallback implements OnHttpCallBack<ThreadInfo> {
         @Override
         public void onError(String text) {
             if (mBaseView != null) {
@@ -56,14 +58,20 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
         @Override
         public void onError(String msg, Throwable t) {
-            onError(msg);
-            if (t instanceof ArticleListModel.ServerException) {
-                showWithWebView();
+            if (mBaseView != null && t instanceof ArticleListModel.ServerException) {
+                if (PreferenceUtils.getData(ContextUtils.getString(gov.anzong.androidnga.common.R.string.pref_show_with_app_api), false)) {
+                    mBaseModel.loadPageWithAppApi(mRequestParam, mHeaderMap,  mAppApiCallback);
+                } else if (PreferenceUtils.getData(ContextUtils.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
+                    onError(msg);
+                    showWithWebView();
+                }
+            } else {
+                onError(msg);
             }
         }
 
         @Override
-        public void onSuccess(ThreadData data) {
+        public void onSuccess(ThreadInfo data) {
             if (mBaseView != null) {
                 mThreadData = data;
                 mBaseView.setRefreshing(false);
@@ -90,9 +98,29 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         }
     }
 
-    private final OnHttpCallBack<ThreadData> mRetryCallback = new RetryCallback();
+    private final OnHttpCallBack<ThreadInfo> mAppApiCallback = new ArticleCallback() {
+        @Override
+        public void onError(String msg, Throwable t) {
+            if (mBaseView == null) {
+                return;
+            }
+            onError(msg);
+            if (PreferenceUtils.getData(ContextUtils.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
+                showWithWebView();
+            }
+        }
 
-    private final OnHttpCallBack<ThreadData> mDataCallBack = new ArticleCallback();
+        @Override
+        public void onSuccess(ThreadInfo data) {
+            mUserCompatMode = true;
+            ToastUtils.success("使用兼容模式打开");
+            super.onSuccess(data);
+        }
+    };
+
+    private final OnHttpCallBack<ThreadInfo> mRetryCallback = new RetryCallback();
+
+    private final OnHttpCallBack<ThreadInfo> mDataCallBack = new ArticleCallback();
 
     @Override
     protected ArticleListModel onCreateModel() {
@@ -103,8 +131,9 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         if (mBaseView == null) {
             return false;
         }
+        int userCount = UserManagerImpl.getInstance().getUserSize();
         String cookie = UserManagerImpl.getInstance().getNextCookie();
-        if (cookie == null) {
+        if (userCount < 2 || cookie == null) {
             return false;
         }
         Map<String, String> header = new ArrayMap<>();
@@ -116,13 +145,14 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     @Override
     public void loadPage(ArticleListParam param) {
         mBaseView.setRefreshing(true);
-        mBaseModel.loadPage(param, mHeaderMap, mRetryCallback);
+        if (mUserCompatMode) {
+            mBaseModel.loadPageWithAppApi(param, mHeaderMap, mAppApiCallback);
+        } else {
+            mBaseModel.loadPage(param, mHeaderMap, mRetryCallback);
+        }
     }
 
     private void showWithWebView() {
-        if (mBaseView == null || !mBaseView.getContext().getSharedPreferences(PreferenceKey.PERFERENCE, Context.MODE_PRIVATE).getBoolean(mBaseView.getString(gov.anzong.androidnga.common.R.string.pref_show_with_webview), true)) {
-            return;
-        }
         ARouterUtils.build(ARouterConstants.ACTIVITY_FRAGMENT_TEMPLATE)
                 .withString("url", getCurrentUrl())
                 .withString("title", mRequestParam.title)
@@ -150,50 +180,50 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     @Override
-    public void banThisSB(ThreadRowInfo row) {
-        if (row.getISANONYMOUS()) {
+    public void banThisSB(ThreadPostInfo row) {
+        if (row.isAnonymous) {
             mBaseView.showToast(R.string.cannot_add_to_blacklist_cause_anony);
         } else {
             UserManager um = UserManagerImpl.getInstance();
-            if (row.get_isInBlackList()) {
-                row.set_IsInBlackList(false);
-                um.removeFromBlackList(String.valueOf(row.getAuthorid()));
+            if (row.isBlocked) {
+                row.isBlocked = false;
+                um.removeFromBlackList(String.valueOf(row.authorId));
                 mBaseView.showToast(R.string.remove_from_blacklist_success);
             } else {
-                row.set_IsInBlackList(true);
-                um.addToBlackList(row.getAuthor(), String.valueOf(row.getAuthorid()));
+                row.isBlocked = true;
+                um.addToBlackList(row.author, String.valueOf(row.authorId));
                 mBaseView.showToast(R.string.add_to_blacklist_success);
             }
         }
     }
 
     @Override
-    public void postComment(ArticleListParam param, ThreadRowInfo row) {
+    public void postComment(ArticleListParam param, ThreadPostInfo row) {
         final String quoteRegex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
         final String replayRegex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
         StringBuilder postPrefix = new StringBuilder();
-        String content = row.getContent()
+        String content = row.rawContent
                 .replaceAll(quoteRegex, "")
                 .replaceAll(replayRegex, "");
-        final String postTime = row.getPostdate();
+        final String postTime = row.postDate;
         content = FunctionUtils.checkContent(content);
         content = StringUtils.unEscapeHtml(content);
-        final String name = row.getAuthor();
-        final String uid = String.valueOf(row.getAuthorid());
+        final String name = row.author;
+        final String uid = String.valueOf(row.authorId);
         String tidStr = String.valueOf(param.tid);
-        if (row.getPid() != 0) {
+        if (row.pid != 0) {
             postPrefix.append("[quote][pid=")
-                    .append(row.getPid())
+                    .append(row.pid)
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
-            if (row.getISANONYMOUS()) {// 是匿名的人
+            if (row.isAnonymous) {// 是匿名的人
                 postPrefix.append("[/pid] [b]Post by [uid=")
                         .append("-1")
                         .append("]")
                         .append(name)
                         .append("[/uid][color=gray](")
-                        .append(row.getLou())
+                        .append(row.lou)
                         .append("楼)[/color] (");
             } else {
                 postPrefix.append("[/pid] [b]Post by [uid=")
@@ -209,8 +239,8 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("pid", row.getPid());
-        bundle.putInt("fid", row.getFid());
+        bundle.putInt("pid", row.pid);
+        bundle.putInt("fid", row.fid);
         bundle.putInt("tid", param.tid);
 
         String prefix = StringUtils.removeBrTag(postPrefix.toString());
@@ -237,34 +267,35 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     }
 
     @Override
-    public void quote(ArticleListParam param, ThreadRowInfo row) {
+    public void quote(ArticleListParam param, ThreadPostInfo row) {
+        ThreadPostInfo postInfo = row;
         final String quoteRegex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
         final String replayRegex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
         StringBuilder postPrefix = new StringBuilder();
-        String content = row.getContent()
+        String content = row.rawContent
                 .replaceAll(quoteRegex, "")
                 .replaceAll(replayRegex, "");
-        final String postTime = row.getPostdate();
+        final String postTime = row.postDate;
         String mention = null;
-        final String name = row.getAuthor();
-        final String uid = String.valueOf(row.getAuthorid());
+        final String name = postInfo.author;
+        final String uid = String.valueOf(postInfo.authorId);
         content = FunctionUtils.checkContent(content);
         content = StringUtils.unEscapeHtml(content);
         String tidStr = String.valueOf(param.tid);
-        if (row.getPid() != 0) {
+        if (postInfo.pid != 0) {
             mention = name;
             postPrefix.append("[quote][pid=")
-                    .append(row.getPid())
+                    .append(postInfo.pid)
                     .append(',').append(tidStr).append(",").append(param.page)
                     .append("]")// Topic
                     .append("Reply");
-            if (row.getISANONYMOUS()) {// 是匿名的人
+            if (postInfo.isAnonymous) {// 是匿名的人
                 postPrefix.append("[/pid] [b]Post by [uid=")
                         .append("-1")
                         .append("]")
                         .append(name)
                         .append("[/uid][color=gray](")
-                        .append(row.getLou())
+                        .append(row.lou)
                         .append("楼)[/color] (");
             } else {
                 postPrefix.append("[/pid] [b]Post by [uid=")

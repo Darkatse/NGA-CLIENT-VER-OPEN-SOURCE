@@ -39,7 +39,7 @@ object UserManager {
     }
 
     fun hasValidUser(): Boolean {
-        return activeUser != null
+        return activeUser != null && userListLiveData.value?.isNotEmpty() == true
     }
 
     public fun getActiveIndex(): Int {

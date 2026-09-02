@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.ArticleCacheActivity;
 import gov.anzong.androidnga.base.util.ToastUtils;
-import sp.phone.mvp.model.entity.ThreadPageInfo;
+import com.client.androidnga.core.data.model.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;

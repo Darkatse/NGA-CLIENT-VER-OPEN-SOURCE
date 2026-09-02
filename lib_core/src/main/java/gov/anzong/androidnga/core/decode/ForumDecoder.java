@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 
 /**
  * Created by Justwen on 2018/8/25.
@@ -20,6 +20,7 @@ public class ForumDecoder {
         sDecoderPool.add(new ForumAlbumDecoder());
         sDecoderPool.add(new ForumEmoticonDecoder());
         sDecoderPool.add(new ForumImageDecoder());
+        sDecoderPool.add(new ForumDiceDecoder());
     }
 
     public static String decode(String rawData, @NonNull HtmlData htmlData, List<String> urls) {

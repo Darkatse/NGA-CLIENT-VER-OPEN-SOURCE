@@ -2,11 +2,22 @@ package gov.anzong.androidnga.core;
 
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import gov.anzong.androidnga.common.util.FileUtils;
 import gov.anzong.androidnga.core.corebuild.HtmlBuilder;
-import gov.anzong.androidnga.core.data.HtmlData;
+
+import com.client.androidnga.core.data.bean.ThreadAttachBean;
+import com.client.androidnga.core.data.bean.ThreadPostBean;
+import com.client.androidnga.core.data.html.AttachmentData;
+import com.client.androidnga.core.data.html.CommentData;
+import com.client.androidnga.core.data.html.HtmlData;
+import com.client.androidnga.core.data.model.ThreadBasicInfo;
+import com.client.androidnga.core.data.model.ThreadInfo;
+import com.client.androidnga.core.data.model.ThreadPostInfo;
+
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 
 public class HtmlConvertFactory {
@@ -15,6 +26,39 @@ public class HtmlConvertFactory {
 
     static {
         sHtmlTemplate = FileUtils.readAssetToString("html/html_template.html");
+    }
+
+    public static String convert(ThreadPostInfo row, ThreadBasicInfo basicInfo, IHtmlConfigService config) {
+        HtmlData htmlData = new HtmlData(row.rawContent);
+        if (basicInfo != null) {
+            htmlData.attachmentHost = basicInfo.attachHost;
+        }
+        htmlData.setAlertInfo(row.alterInfo);
+        htmlData.setDarkMode(config.isDarkMode());
+        htmlData.setInBackList(row.isBlocked);
+     //   htmlData.setTextSize(PhoneConfiguration.getInstance().getTopicContentSize());
+        htmlData.setEmotionSize(config.getEmoticonSize());
+        htmlData.setSignature(config.isShowSignature() ? row.signature : null);
+        htmlData.setVote(row.vote);
+        htmlData.setSubject(row.subject);
+        htmlData.setShowImage(config.isImageEnabled());
+        htmlData.setNGAHost(config.getNGAHost());
+        htmlData.pid = String.valueOf(row.pid);
+        htmlData.tid = String.valueOf(row.tid);
+        htmlData.uid = String.valueOf(row.authorId);
+        htmlData.setAttachmentList(row.attachInfo);
+
+        List<CommentData> comments = new ArrayList<>();
+        for (ThreadPostInfo value : row.comments) {
+            CommentData comment = new CommentData();
+            comment.setAuthor(value.author);
+            comment.setContent(value.rawContent);
+            comment.setPostTime(value.postDate);
+            comment.setAvatarUrl(value.avatarUrl);
+            comments.add(comment);
+        }
+        htmlData.setCommentList(comments);
+        return convert(htmlData, row.imageUrlList);
     }
 
     public static String convert(HtmlData htmlData, List<String> images) {

@@ -8,7 +8,7 @@ import java.util.Map;
 
 import gov.anzong.androidnga.base.util.StringUtils;
 import gov.anzong.androidnga.core.corebuild.HtmlVoteBuilder;
-import gov.anzong.androidnga.core.data.HtmlData;
+import com.client.androidnga.core.data.html.HtmlData;
 
 public class ForumVoteDecoder implements IForumDecoder {
 
